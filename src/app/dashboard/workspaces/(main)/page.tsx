@@ -1,6 +1,7 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
 import UploadButton from "@/app/components/UploadButton";
+import NewChat from "@/components/NewChat";
 import Link from "next/link";
 import React from "react";
 import Skeleton from "react-loading-skeleton";
@@ -15,12 +16,16 @@ export default function Workspaces() {
   );
 
   return (
-    <div>
-      <h1 className="title">Workspaces</h1>
-      <div className="my-5">
-        <UploadButton />
+    <div className="w-full flex flex-col h-screen ">
+      <div className="px-8 py-6 flex flex-row w-full justify-between items-center">
+        <div className="space-y-1">
+          <h1 className="title">Conversations</h1>
+          <p className="description">Chat with your documents </p>
+        </div>
+
+        <NewChat />
       </div>
-      <div>
+      <div className="overflow-auto overflow-x-hidden flex-1">
         {workspaces?.map((workspace) => (
           <Link
             href={`/workspace/${workspace.id}`}

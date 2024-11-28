@@ -8,9 +8,9 @@ export default function DashboardLayout({
 }) {
   //upload files to workspace
   return (
-    <div className="w-full flex flex-row">
+    <div className="w-full flex flex-row h-screen overflow-hidden">
       <DashboardNav />
-      <div className="px-10 py-10 flex-1">{children}</div>
+      <div className="flex-1">{children}</div>
     </div>
   );
 }

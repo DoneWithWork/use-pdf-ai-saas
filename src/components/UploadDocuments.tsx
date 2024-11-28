@@ -1,40 +1,16 @@
 "use client";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import { Progress } from "@/components/ui/progress";
-import { Cloud, File, MessageSquarePlus } from "lucide-react";
-import React, { useState } from "react";
-import Dropzone from "react-dropzone";
-import { useUploadThing } from "./uploadthing";
-import { useToast } from "@/hooks/use-toast";
-import { trpc } from "../_trpc/client";
-import { useRouter } from "next/navigation";
-import { DialogTitle } from "@radix-ui/react-dialog";
 
-export default function UploadButton({}) {
+import { File } from "lucide-react";
+import { Progress } from "./ui/progress";
+import Dropzone from "react-dropzone";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/router";
+
+export default function UploadDocuments() {
   const [isOpen, setIsOpen] = useState<boolean>(false);
-  return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={(v) => {
-        if (!v) {
-          setIsOpen(v);
-        }
-      }}
-    >
-      <DialogTrigger onClick={() => setIsOpen(true)} asChild>
-        <Button className=" gap-1 bg-[#1067FE]">
-          <MessageSquarePlus className="w-5 h-5 " />
-          <p className="font-semibold text-sm">New Chat</p>
-        </Button>
-      </DialogTrigger>
-      <DialogTitle></DialogTitle>
-      <DialogContent>
-        <UploadDropzone setIsOpen={setIsOpen} />
-      </DialogContent>
-    </Dialog>
-  );
+  return <div>UploadDocuments</div>;
 }
+
 const UploadDropzone = ({
   setIsOpen,
 }: {
@@ -70,8 +46,8 @@ const UploadDropzone = ({
       //link the file to the workspace
 
       //close the dialog
-      utils.getUserDocumentPaginated.invalidate();
-      setIsOpen(false);
+      utils.getUserFiles.invalidate();
+      newWorkspace({ fileId: file.id });
     },
     retry: true,
     retryDelay: 500,

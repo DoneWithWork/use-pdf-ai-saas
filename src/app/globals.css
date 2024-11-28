@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: Arial, Helvetica, sans-serif;
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
@@ -67,16 +63,28 @@ body {
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
-  body {
-  }
   h1 {
-    font-family: "Roboto", sans-serif;
+    font-family: var(--font-inter);
   }
   p {
-    font-family: "Montserrat", sans-serif;
+    font-family: var(--font-inter);
+    font-size: 1.2rem;
+    color: #2f2f2f;
+  }
+  .heading {
+    @apply font-bold  text-3xl sm:text-3xl md:text-4xl lg:text-5xl max-w-[18ch] sm:max-w-[23ch] text-center text-wrap leading-10;
+  }
+  .custom__container {
+    @apply max-w-[1300px] mx-auto flex flex-col items-center  px-2;
+  }
+  .heading__description {
+    @apply max-w-[50ch] text-center mt-5 text-sm sm:text-xl leading-tight;
+  }
+  body {
+    @apply bg-[#ECFAFF];
   }
   .title {
-    @apply text-3xl font-semibold shadow-sm;
+    @apply text-lg sm:text-xl md:text-2xl lg:text-4xl font-semibold;
   }
   .flex-center {
     @apply flex flex-col items-center justify-center;
@@ -88,7 +96,18 @@ body {
     width: 0.25rem;
     height: 0.25rem;
   }
-
+  .description {
+    @apply text-sm  text-gray-500;
+  }
+  .icon_link {
+    @apply flex flex-row px-2 py-2 rounded-xl items-center gap-2 font-semibold transition-colors duration-300;
+  }
+  .icon_link:hover {
+    @apply bg-blue-400 text-white;
+  }
+  .active {
+    @apply bg-gray-200;
+  }
   .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
     --bg-opacity: 0.5;
     background-color: #00000015;

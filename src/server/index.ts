@@ -40,6 +40,48 @@ export const appRouter = router({
     }
     return { success: true };
   }),
+
+  // Returns a User's documents, paginated
+  getUserDocumentPaginated: privateProcedure
+    .input(
+      z.object({
+        page: z.number().min(1),
+        totalItems: z.number().min(1),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const page = input.page ?? 1;
+      const offset = (page - 1) * input.totalItems;
+      const totalCount = await db.file.count({
+        where: {
+          userId,
+        },
+      });
+      const totalPages = Math.ceil(totalCount / input.totalItems);
+      const limit = 5;
+      const files = await db.file.findMany({
+        skip: offset, // This is the offset
+        take: limit, // This is the limit
+        where: {
+          userId,
+        },
+        orderBy: {
+          createdAt: "desc",
+        },
+        select: {
+          id: true,
+          size: true,
+          name: true,
+          createdAt: true,
+          workspaceId: true,
+        },
+      });
+      return {
+        files,
+        totalPages,
+      };
+    }),
   getUserFiles: privateProcedure.query(async ({ ctx }) => {
     // Retrieve users from a datasource, this is an imaginary database
     const { userId } = ctx;
@@ -154,6 +196,25 @@ export const appRouter = router({
         },
       });
       return chat;
+    }),
+  createFolder: privateProcedure
+    .input(
+      z.object({
+        name: z.string().min(1),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const folder = await db.folder.create({
+        data: {
+          userId,
+          name: input.name,
+        },
+      });
+      if (!folder) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+      return true;
     }),
   renameWorkspace: privateProcedure
     .input(z.object({ id: z.string(), name: z.string() }))

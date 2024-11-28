@@ -13,6 +13,29 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 const f = createUploadthing();
 
 export const ourFileRouter = {
+  documentUploader: f({ pdf: { maxFileSize: "4MB", minFileCount: 1 } })
+    .middleware(async ({ req }) => {
+      const { getUser } = getKindeServerSession();
+      const user = await getUser();
+      if (!user || !user.id) {
+        if (!user) throw new UploadThingError("Unauthorized");
+      }
+
+      return { userId: user.id };
+    })
+    .onUploadComplete(async ({ metadata, file }) => {
+      console.log("File uploaded");
+      const createdFile = await db.file.create({
+        data: {
+          userId: metadata.userId,
+          name: file.name,
+          url: file.url,
+          size: file.size,
+          uploadStatus: "SUCCESS",
+          key: file.key,
+        },
+      });
+    }),
   pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       const { getUser } = getKindeServerSession();
