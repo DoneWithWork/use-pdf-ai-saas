@@ -8,7 +8,7 @@ const DashboardNav = async () => {
   return (
     <div>
       <nav className="block sm:hidden">{/* <h1>Hi</h1> */}</nav>
-      <nav className="bg-[#ECFAFF] lg:w-64 h-screen hidden sm:block">
+      <nav className="bg-white lg:w-64 h-screen hidden sm:block">
         <div className="px-5 py-3 flex flex-col h-screen justify-between">
           <div>
             <div className="flex flex-col items-center  mt-5">

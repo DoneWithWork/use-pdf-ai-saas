@@ -6,7 +6,6 @@ import React from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import byteSize from "byte-size";
-import UploadButton from "@/app/components/UploadButton";
 
 import {
   Pagination,
@@ -28,8 +27,7 @@ import {
 } from "@/components/ui/table";
 
 import { useSearchParams } from "next/navigation";
-import UploadPDF from "@/app/components/UploadPDF";
-
+import UploadDocuments from "@/components/UploadDocuments";
 export default function Documents() {
   const [currentDeletingFile, setCurrentDeletingFile] = React.useState<
     string | null
@@ -62,7 +60,7 @@ export default function Documents() {
       <div className="p-5 flex flex-row items-center justify-between">
         <h1 className="title">Documents</h1>
         <div className="">
-          <UploadButton />
+          <UploadDocuments />
         </div>
       </div>
       {/* Displa all files*/}

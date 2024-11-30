@@ -13,7 +13,7 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  documentUploader: f({ pdf: { maxFileSize: "4MB", minFileCount: 1 } })
+  documentUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
       const { getUser } = getKindeServerSession();
       const user = await getUser();
