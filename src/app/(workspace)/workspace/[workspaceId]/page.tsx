@@ -3,7 +3,7 @@ import { trpc } from "@/app/_trpc/client";
 import ChatWrapper from "@/app/components/Chat/ChatWrapper";
 import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
-import React, { Suspense } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 const PdfViewerComponent = dynamic(
   () => import("../../../components/PdfRenderer"),
   {
@@ -13,12 +13,18 @@ const PdfViewerComponent = dynamic(
 export default function WorkSpace({
   params,
 }: {
-  params: {
-    workspaceId: string;
-  };
+  params: Promise<{ workspaceId: string }>;
 }) {
+  const [workspaceId, setWorkspaceId] = useState<string>("");
+  useEffect(() => {
+    const fetchWorkspaceId = async () => {
+      const id = (await params).workspaceId;
+      setWorkspaceId(id);
+    };
+    fetchWorkspaceId();
+  }, [params]);
   const { data: workspace } = trpc.getOneWorkspace.useQuery({
-    id: params.workspaceId,
+    id: workspaceId,
   });
 
   return (

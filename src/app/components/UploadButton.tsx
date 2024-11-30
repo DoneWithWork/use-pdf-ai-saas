@@ -46,7 +46,7 @@ const UploadDropzone = ({
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const { startUpload } = useUploadThing("pdfUploader");
   const utils = trpc.useUtils();
-  const { mutate: newWorkspace } = trpc.newWorkspace.useMutation({
+  const { mutate } = trpc.newWorkspace.useMutation({
     onSuccess: (workspace) => {
       console.log("Workspace created successfully");
       // close the dialog

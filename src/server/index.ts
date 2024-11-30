@@ -155,6 +155,44 @@ export const appRouter = router({
         nextCursor: nextCursor,
       };
     }),
+  createNewChat: privateProcedure
+    .input(
+      z.object({
+        ids: z.array(z.string().min(1)),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const ids = input.ids;
+      const workspace = await db.workspace.create({
+        data: {
+          userId,
+          File: {
+            connect: ids.map((id) => ({ id })), //connect all the files
+          },
+        },
+      });
+      if (!workspace) {
+        throw new TRPCError({ code: "BAD_REQUEST" });
+      }
+      return { id: workspace.id };
+      // const notVectorisedFiles = await db.file.findMany({
+      //   where: {
+      //     userId,
+      //     id: {
+      //       in: ids,
+      //     },
+      //     vectorStatus: "PENDING",
+      //   },
+      //   select: {
+      //     id,
+      //   },
+      // });
+      // consider using a transaction
+      // check if each document has already been vectorised
+      // if not vectorise it
+      // allow user to go to next page
+    }),
   getFileUploadStatus: privateProcedure
     .input(z.object({ fileId: z.string() }))
     .query(async ({ ctx, input }) => {

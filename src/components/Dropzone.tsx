@@ -5,7 +5,7 @@ import { Cloud, FileText } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
 import { Progress } from "./ui/progress";
-import { shortenName } from "@/lib/utils";
+import { shortenFileName } from "@/lib/utils";
 import byteSize from "byte-size";
 export const OurUploadDropzone = () => {
   const [files, setFiles] = useState<File[]>([]);
@@ -15,9 +15,14 @@ export const OurUploadDropzone = () => {
   const { startUpload } = useUploadThing("documentUploader", {
     onBeforeUploadBegin: (files) => {
       const newFiles = files.map((file) => {
-        const newFile = new File([file], file.name + "-" + Date.now(), {
-          type: file.type,
-        });
+        const name = file.name.split(".").shift();
+        const newFile = new File(
+          [file],
+          name + "-" + Date.now() + "." + file.type.split("/").pop(),
+          {
+            type: file.type,
+          }
+        );
         setFiles((prevFiles) => [...prevFiles, newFile]);
         return newFile;
       });
@@ -84,7 +89,7 @@ export const OurUploadDropzone = () => {
           >
             <FileText size={50} className="w-10 h-10" />
             <div>
-              <p className="text-ellipsis ">{shortenName(file, 30)}</p>
+              <p className="text-ellipsis ">{shortenFileName(file, 30)}</p>
               <p>{byteSize(file.size).toString()}</p>
             </div>
           </div>

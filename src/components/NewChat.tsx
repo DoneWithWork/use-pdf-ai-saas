@@ -1,8 +1,51 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Button, CloseButton, Container } from "@mantine/core";
-
+import { Drawer, Button } from "@mantine/core";
+import { FileText, Loader2, Plus } from "lucide-react";
+import UploadDocumentButton from "./UploadDocumentButton";
+import { trpc } from "@/app/_trpc/client";
+import { cn, shortenName } from "@/lib/utils";
+import byteSize from "byte-size";
+import { useState } from "react";
+import { File } from "@prisma/client";
+import { ErrorToast } from "@/app/components/Toasts";
+import { useRouter } from "next/navigation";
+import { SuccessToast } from "@/app/components/Toasts";
 export default function NewChat() {
   const [opened, { open, close }] = useDisclosure(false);
+  const router = useRouter();
+  const [isCreating, setIsCreating] = useState<boolean>(false);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const { data: files, isLoading } = trpc.getUserFiles.useQuery(undefined, {
+    retry: 3,
+    retryDelay: 1000,
+  });
+  const { mutate } = trpc.createNewChat.useMutation({
+    onSuccess: (res) => {
+      console.log("Chat created successfully");
+      SuccessToast("Chat created successfully");
+      router.push(`/workspaces/${res.id}`);
+    },
+    onError: (err) => {
+      ErrorToast(`Error creating chat: ${err.message}`);
+      console.log("Error creating chat", err);
+    },
+  });
+
+  const createChat = () => {
+    const ids = selectedFiles.map((f) => f.id);
+    setIsCreating(true);
+    // Pass the `ids` to the mutation
+    mutate({ ids });
+    setIsCreating(false);
+  };
+
+  const selectFile = (file: File) => {
+    if (selectedFiles.some((f) => f.id === file.id)) {
+      setSelectedFiles(selectedFiles.filter((f) => f.id !== file.id));
+    } else {
+      setSelectedFiles([...selectedFiles, file]);
+    }
+  };
 
   return (
     <>
@@ -23,11 +66,55 @@ export default function NewChat() {
               m={10}
             />
           </div>
-          <Drawer.Body>Drawer content</Drawer.Body>
+          <Drawer.Body>
+            <UploadDocumentButton />
+            <div className="w-full px-2 grid grid-cols-3  gap-4 mt-4 rounded-md ">
+              {isLoading && <Loader2 className="animate-spin" size={25} />}
+              {files?.map((file, index) => (
+                <div
+                  key={index}
+                  className={cn(
+                    selectedFiles.some((f) => f.id === file.id)
+                      ? "isSelectedFile"
+                      : "",
+                    "selectFile"
+                  )}
+                  onClick={() =>
+                    selectFile({
+                      ...file,
+                      createdAt: new Date(file.createdAt),
+                      updatedAt: new Date(file.updatedAt),
+                    })
+                  }
+                >
+                  <FileText size={50} className="w-10 h-10" />
+                  <div>
+                    <p className="text-ellipsis ">
+                      {shortenName(file.name, 20)}
+                    </p>
+                    <p>{byteSize(file.size).toString()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="w-full">
+              <Button
+                disabled={selectedFiles.length === 0 || isCreating}
+                onClick={() => createChat()}
+              >
+                Create Chat
+              </Button>
+            </div>
+          </Drawer.Body>
         </Drawer.Content>
       </Drawer.Root>
 
-      <Button onClick={open}>Open drawer</Button>
+      <Button onClick={open}>
+        <div className="flex flex-row gap-1 items-center">
+          <Plus size={25} />
+          <span>New Chat</span>
+        </div>
+      </Button>
     </>
   );
 }

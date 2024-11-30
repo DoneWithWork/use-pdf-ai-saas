@@ -117,7 +117,12 @@
     --bg-opacity: 0.5;
     background-color: #13131374;
   }
-
+  .isSelectedFile {
+    @apply border-gray-500 bg-gray-100;
+  }
+  .selectFile {
+    @apply w-full cursor-pointer  flex flex-row items-center gap-2 border-2 border-transparent hover:border-2 hover:border-gray-400 rounded-md m-2 transition-all duration-200;
+  }
   .scrollbar-thumb-rounded::-webkit-scrollbar-thumb {
     border-radius: 7px;
   }
