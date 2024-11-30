@@ -86,6 +86,9 @@
   .title {
     @apply text-lg sm:text-xl md:text-2xl lg:text-4xl font-semibold;
   }
+  .activeDoc {
+    @apply bg-gray-200 rounded-xl;
+  }
   .flex-center {
     @apply flex flex-col items-center justify-center;
   }

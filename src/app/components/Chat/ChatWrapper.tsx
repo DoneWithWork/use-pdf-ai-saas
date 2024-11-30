@@ -17,6 +17,7 @@ export default function ChatWrapper({ fileId }: { fileId: string }) {
           : 1000,
     }
   );
+  // need to check if la
   if (isLoading)
     return (
       <div className="relative min-h-full bg-zinc-200 flex divide-y divide-zinc-200 flex-col justify-between gap-2 ">

@@ -193,6 +193,16 @@ export const appRouter = router({
       // if not vectorise it
       // allow user to go to next page
     }),
+  vectoriseDocuments: privateProcedure
+    .input(
+      z.object({
+        ids: z.array(z.string().min(1)),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const ids = input.ids;
+    }),
   getFileUploadStatus: privateProcedure
     .input(z.object({ fileId: z.string() }))
     .query(async ({ ctx, input }) => {
