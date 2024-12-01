@@ -34,7 +34,7 @@ enum UploadStatus {
   SUCCESS
 }
 
-enum vectorStatus {
+enum VectorStatus {
   PENDING
   PROCESSING
   FAILED
@@ -67,7 +67,7 @@ model File {
   message      Message[]
   Folder       Folder?      @relation(fields: [folderId], references: [id])
   folderId     String?
-  vectorStatus vectorStatus @default(PENDING)
+  vectorStatus VectorStatus @default(PENDING)
 }
 
 model Chat {

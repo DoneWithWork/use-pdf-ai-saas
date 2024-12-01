@@ -93,7 +93,7 @@
     @apply flex flex-col items-center justify-center;
   }
   .flex-row-custom {
-    @apply flex flex-row gap-5 items-center;
+    @apply flex flex-row gap-4 items-center;
   }
   .scrollbar-w-2::-webkit-scrollbar {
     width: 0.25rem;
@@ -108,9 +108,9 @@
   .icon_link:hover {
     @apply bg-blue-400 text-white;
   }
-  .active {
+  /* .active {
     @apply bg-gray-200;
-  }
+  } */
   .scrollbar-track-blue-lighter::-webkit-scrollbar-track {
     --bg-opacity: 0.5;
     background-color: #00000015;

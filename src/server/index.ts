@@ -5,6 +5,10 @@ import db from "../../prisma/db";
 import { z } from "zod";
 import { UTApi } from "uploadthing/server";
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
+import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
+import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PineconeStore } from "@langchain/pinecone";
 
 const utapi = new UTApi();
 export const appRouter = router({
@@ -105,6 +109,13 @@ export const appRouter = router({
       if (!file) throw new TRPCError({ code: "NOT_FOUND" });
       await db.file.delete({ where: { id: input.id } });
       await utapi.deleteFiles(file.key);
+      //delete embeddings
+      const pinecone = new PineconeClient();
+      const pineconeIndex = pinecone
+        .Index(process.env.PINECONE_INDEX!)
+        .deleteMany({
+          ids: [file.id],
+        });
 
       return file;
     }),
@@ -199,9 +210,58 @@ export const appRouter = router({
         ids: z.array(z.string().min(1)),
       })
     )
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
       const ids = input.ids;
+      const notVectorisedFiles = await db.file.findMany({
+        where: {
+          userId,
+          id: {
+            in: ids,
+          },
+          vectorStatus: "PENDING",
+        },
+      });
+      if (notVectorisedFiles.length === 0) return;
+      try {
+        notVectorisedFiles.forEach(async (file) => {
+          const res = await fetch(file.url);
+          const blob = await res.blob();
+          const loader = new PDFLoader(blob);
+          const pageLevelDocs = await loader.load();
+          const pagesAmount = pageLevelDocs.length;
+
+          // vectorise the pages
+
+          const pinecone = new PineconeClient();
+          const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+
+          console.log(`Vectorising ${file.name} with ${pagesAmount} pages`);
+          const embeddings = new OpenAIEmbeddings({
+            openAIApiKey: process.env.OPENAI_API_KEY!,
+            model: "text-embedding-3-small",
+          });
+          console.log("Uploading to Pinecone");
+          await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+            //@ts-expect-error - this is a bug in the pinecone types
+            pineconeIndex,
+            namespace: file.id,
+          });
+          await db.file.update({
+            data: {
+              vectorStatus: "SUCCESS",
+            },
+            where: {
+              userId,
+              id: file.id,
+            },
+          });
+          console.log(`Done vectorising ${file.name}`);
+        });
+      } catch (error) {
+        console.log(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
   getFileUploadStatus: privateProcedure
     .input(z.object({ fileId: z.string() }))

@@ -2,9 +2,14 @@
 import { trpc } from "@/app/_trpc/client";
 import ChatWrapper from "@/app/components/Chat/ChatWrapper";
 import { cn, shortenName } from "@/lib/utils";
-import { FileText, Loader2, Text } from "lucide-react";
+import { CloudLightningIcon, FileText, Loader2, Text } from "lucide-react";
 import dynamic from "next/dynamic";
+
 import React, { Suspense, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { ErrorToast } from "@/app/components/Toasts";
+import WorkspaceNav from "@/components/WorkspaceNav";
 const PdfViewerComponent = dynamic(
   () => import("../../../components/PdfRenderer"),
   {
@@ -25,6 +30,16 @@ export default function WorkSpace({
       refetchInterval: false, // Remove the automatic refetch
     }
   );
+  const { mutate: vectoriseDocs } = trpc.vectoriseDocuments.useMutation({
+    onSuccess: () => {
+      console.log("Success");
+    },
+    onError: (error) => {
+      return ErrorToast(`Error: ${error.message}`);
+    },
+    retry: 3,
+    retryDelay: 3000,
+  });
   useEffect(() => {
     const fetchWorkspaceId = async () => {
       const id = (await params).workspaceId;
@@ -32,51 +47,63 @@ export default function WorkSpace({
     };
     fetchWorkspaceId();
     setCurSelectedFile(workspace?.File[0].id || "");
-  }, [params, workspace?.File]);
+    vectoriseDocs({ ids: workspace?.File.map((file) => file.id) || [] });
+  }, [params, workspace?.File, vectoriseDocs]);
+
+  const returnFileUrl = (fileId: string) => {
+    const file = workspace?.File.find((file) => file.id === fileId);
+    return file?.url;
+  };
   return (
-    <div className=" justify-between flex flex-col h-[calc(100vh-3.5rem)]">
-      <div className="mx-auto w-full max-w-8xl grow lg:flex xl:px-2">
-        {/* Left sidebar & main wrapper */}
-        <div className="flex-1 xl:flex">
-          <div className="px-4 py-6 sm:px-6 lg:pl-8 xl:flex-1 xl:pl-6">
-            {/* Main area */}
-            {workspace ? (
+    <div className=" justify-between flex flex-col w-full  h-screen max-h-screen md:overflow-hidden">
+      <WorkspaceNav workspaceName={workspace?.name || ""} />
+      <div className=" w-full max-w-8xl  h-full lg:flex   ">
+        <div className="  xl:flex-1 ">
+          {/* Main area */}
+          {workspace ? (
+            <div className="bg-white h-full">
               <Suspense
                 fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
               >
-                <PdfViewerComponent url={workspace.File[0].url} />
+                <PdfViewerComponent
+                  url={returnFileUrl(curSelectedFile) || ""}
+                />
               </Suspense>
-            ) : (
-              <p>Loading</p>
-            )}
-          </div>
+            </div>
+          ) : (
+            <p>Loading</p>
+          )}
         </div>
 
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
           <ChatWrapper fileId={workspace?.File[0].id || ""} />
         </div>
-        <div className="w-32 px-2 flex flex-col items-center justify-center gap-10 h-screen bg-white">
-          {workspace?.File.map((file, index) => (
-            <div
-              key={index}
-              className="flex flex-col items-center justify-center "
-            >
+        <div className="ww-full sm:w-32 px-2 grid grid-cols-3 sm:flex sm:flex-col items-center justify-center gap-10  bg-white ">
+          <Suspense
+            fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
+          >
+            {workspace?.File.map((file, index) => (
               <div
-                onClick={() => setCurSelectedFile(file.id)}
-                className={cn(
-                  curSelectedFile === file.id
-                    ? "activeDoc"
-                    : "hover:bg-gray-100",
-                  "mb-5 px-4 py-4 duration-200 transition-all cursor-pointer  rounded-xl"
-                )}
+                key={index}
+                className="flex flex-col items-center justify-center "
               >
-                <FileText size={40} className="" />
+                <div
+                  onClick={() => setCurSelectedFile(file.id)}
+                  className={cn(
+                    curSelectedFile === file.id
+                      ? "activeDoc"
+                      : "hover:bg-gray-100",
+                    "mb-5 px-4 py-4 duration-200 transition-all cursor-pointer  rounded-xl"
+                  )}
+                >
+                  <FileText size={40} className="w-6 h-6 sm:w-8 sm:h-8" />
+                </div>
+                <p className="sm:text-sm font-semibold mb-2 text-xs">
+                  {shortenName(file.name, 10)}
+                </p>
               </div>
-              <p className="text-sm font-semibold">
-                {shortenName(file.name, 10)}
-              </p>
-            </div>
-          ))}
+            ))}
+          </Suspense>
         </div>
       </div>
     </div>
