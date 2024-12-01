@@ -7,9 +7,9 @@ import { cn, shortenName } from "@/lib/utils";
 import byteSize from "byte-size";
 import { useState } from "react";
 import { File } from "@prisma/client";
-import { ErrorToast } from "@/app/components/Toasts";
+import { ErrorToast } from "@/components/Toasts";
 import { useRouter } from "next/navigation";
-import { SuccessToast } from "@/app/components/Toasts";
+import { SuccessToast } from "@/components/Toasts";
 export default function NewChat() {
   const [opened, { open, close }] = useDisclosure(false);
   const router = useRouter();

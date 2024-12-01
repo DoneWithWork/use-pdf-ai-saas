@@ -1,6 +1,5 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
-import UploadButton from "@/app/components/UploadButton";
 import NewChat from "@/components/NewChat";
 import Link from "next/link";
 import React from "react";

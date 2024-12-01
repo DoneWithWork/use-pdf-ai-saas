@@ -9,7 +9,7 @@ import {
   RotateCw,
   Search,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
@@ -57,6 +57,10 @@ const PdfRenderer = ({ url }: { url: string }) => {
     },
     resolver: zodResolver(CustomPageValidator),
   });
+  useEffect(() => {
+    setCurPage(1);
+    setValue("page", "1"); // Reset the input field to page 1
+  }, [url, setValue]);
   //only if inputs are valid
   const handlePageSubmit = ({ page }: TCustomPage) => {
     setCurPage(Number(page));

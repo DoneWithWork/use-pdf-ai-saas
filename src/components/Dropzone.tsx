@@ -1,6 +1,6 @@
 import { trpc } from "@/app/_trpc/client";
-import { ErrorToast } from "@/app/components/Toasts";
-import { useUploadThing } from "@/app/components/uploadthing";
+import { ErrorToast } from "@/components/Toasts";
+import { useUploadThing } from "@/components/uploadthing";
 import { Cloud, FileText } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";

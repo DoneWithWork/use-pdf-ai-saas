@@ -1,5 +1,5 @@
-import React from "react";
-import DashboardNav from "../components/DashboardNav";
+import React, { Suspense } from "react";
+import DashboardNav from "../../components/DashboardNav";
 
 export default function DashboardLayout({
   children,
@@ -10,7 +10,9 @@ export default function DashboardLayout({
   return (
     <div className="w-full flex flex-row h-screen overflow-hidden">
       <DashboardNav />
-      <div className="flex-1">{children}</div>
+      <div className="flex-1">
+        <Suspense>{children}</Suspense>
+      </div>
     </div>
   );
 }

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Loader2, Plus } from "lucide-react";
 import { z } from "zod";
-import { trpc } from "../_trpc/client";
+import { trpc } from "../app/_trpc/client";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {

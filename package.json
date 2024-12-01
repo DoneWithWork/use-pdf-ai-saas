@@ -6,7 +6,8 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@ai-sdk/openai": "^0.0.72",
@@ -30,6 +31,7 @@
     "@radix-ui/react-progress": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
+    "@radix-ui/react-tooltip": "^1.1.4",
     "@tanstack/react-query": "^5.61.5",
     "@trpc/client": "11.0.0-rc.553",
     "@trpc/next": "11.0.0-rc.553",
@@ -58,6 +60,7 @@
     "react-resize-detector": "^11.0.1",
     "react-textarea-autosize": "^8.5.5",
     "simplebar-react": "^3.2.6",
+    "stripe": "^17.4.0",
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "uploadthing": "^7.3.0",

@@ -9,9 +9,57 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
+import { absoluteUrl } from "@/lib/utils";
+import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
+import { PLANS } from "@/config/stripe";
 
 const utapi = new UTApi();
 export const appRouter = router({
+  createStripeSession: privateProcedure.mutation(async ({ ctx }) => {
+    const { userId } = ctx;
+
+    const billingUrl = absoluteUrl("/dashboard/billing");
+
+    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const dbUser = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+    });
+
+    if (!dbUser) throw new TRPCError({ code: "UNAUTHORIZED" });
+
+    const subscriptionPlan = await getUserSubscriptionPlan();
+
+    if (subscriptionPlan.isSubscribed && dbUser.stripeCustomerId) {
+      const stripeSession = await stripe.billingPortal.sessions.create({
+        customer: dbUser.stripeCustomerId,
+        return_url: billingUrl,
+      });
+
+      return { url: stripeSession.url };
+    }
+
+    const stripeSession = await stripe.checkout.sessions.create({
+      success_url: billingUrl,
+      cancel_url: billingUrl,
+      payment_method_types: ["card"],
+      mode: "subscription",
+      billing_address_collection: "auto",
+      line_items: [
+        {
+          price: PLANS.find((plan) => plan.name === "Pro")?.price.priceIds.test,
+          quantity: 1,
+        },
+      ],
+      metadata: {
+        userId: userId,
+      },
+    });
+
+    return { url: stripeSession.url };
+  }),
   getList: publicProcedure.query(async () => {
     // Retrieve users from a datasource, this is an imaginary database
     return [1, 2, 3];
@@ -111,11 +159,9 @@ export const appRouter = router({
       await utapi.deleteFiles(file.key);
       //delete embeddings
       const pinecone = new PineconeClient();
-      const pineconeIndex = pinecone
-        .Index(process.env.PINECONE_INDEX!)
-        .deleteMany({
-          ids: [file.id],
-        });
+      pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
+        ids: [file.id],
+      });
 
       return file;
     }),

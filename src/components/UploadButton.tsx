@@ -7,8 +7,8 @@ import React, { useState } from "react";
 import Dropzone from "react-dropzone";
 import { useUploadThing } from "./uploadthing";
 import { useToast } from "@/hooks/use-toast";
-import { trpc } from "../_trpc/client";
-import { useRouter } from "next/navigation";
+import { trpc } from "../app/_trpc/client";
+
 import { DialogTitle } from "@radix-ui/react-dialog";
 
 export default function UploadButton({}) {
@@ -41,29 +41,11 @@ const UploadDropzone = ({
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
   const { toast } = useToast();
-  const router = useRouter();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const { startUpload } = useUploadThing("pdfUploader");
   const utils = trpc.useUtils();
-  const { mutate } = trpc.newWorkspace.useMutation({
-    onSuccess: (workspace) => {
-      console.log("Workspace created successfully");
-      // close the dialog
-      //get the id and allow to upload files for the workspace
-      utils.getWorkspaces.invalidate();
-      setIsOpen(false);
-      toast({
-        title: "Success",
-        description: "Creating new Workspace...",
-        variant: "default",
-      });
-      router.push(`/workspace/${workspace!.id}`);
-      //create a new workspace and link file to it
-    },
-    retry: 3,
-    retryDelay: 500,
-  });
+
   const { mutate: startPolling } = trpc.getFile.useMutation({
     onSuccess: (file) => {
       console.log(file);

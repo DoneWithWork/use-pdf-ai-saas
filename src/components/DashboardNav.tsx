@@ -1,8 +1,8 @@
-import { File, MessageCircle, Settings, WorkflowIcon } from "lucide-react";
+import { File, WorkflowIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import UserProfile from "./UserProfile";
-import Logo from "../../public/logo.svg";
+import Logo from "@/public/logo.svg";
 import Image from "next/image";
 const DashboardNav = async () => {
   return (

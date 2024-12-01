@@ -1,5 +1,5 @@
-import GetChats from "@/app/components/Chats";
-import NewChatDialog from "@/app/components/NewChatDialog";
+import GetChats from "@/components/Chats";
+import NewChatDialog from "@/components/NewChatDialog";
 
 import React from "react";
 
