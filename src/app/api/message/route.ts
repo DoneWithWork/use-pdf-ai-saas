@@ -66,7 +66,7 @@ export const POST = async (req: NextRequest) => {
     content: m.text,
   }));
   const response = await openai.chat.completions.create({
-    model: "gpt-3.5-turbo",
+    model: "gpt-4o-mini-2024-07-18",
     stream: true, // will stream the response real time
     messages: [
       {
@@ -94,7 +94,7 @@ export const POST = async (req: NextRequest) => {
   USER INPUT: ${message}`,
       },
     ],
-    max_tokens: 50,
+    max_tokens: 200,
     temperature: 0,
   });
 

@@ -1,15 +1,14 @@
 import { cn } from "@/lib/utils";
 import { ExtendedMessage } from "@/types/message";
-import { Icons } from "@/components/Icons";
+import { Icons } from "../Icons";
 import ReactMarkdown from "react-markdown";
 import { format } from "date-fns";
 import { forwardRef } from "react";
-
 interface MessageProps {
   message: ExtendedMessage;
   isNextMessageSamePerson: boolean;
 }
-
+//passing refs from parent to child components
 const Message = forwardRef<HTMLDivElement, MessageProps>(
   ({ message, isNextMessageSamePerson }, ref) => {
     return (

@@ -165,6 +165,7 @@ export const appRouter = router({
 
       return file;
     }),
+  //need to get accoding to chat history
   getFileMessages: privateProcedure
     .input(
       z.object({
