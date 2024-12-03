@@ -9,6 +9,7 @@ import { initPinecone } from "@/lib/pinecone/pinecone";
 import { PineconeStore } from "@langchain/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
+import { getUserSubscriptionPlan } from "@/lib/stripe";
 
 const f = createUploadthing();
 
@@ -20,8 +21,8 @@ export const ourFileRouter = {
       if (!user || !user.id) {
         if (!user) throw new UploadThingError("Unauthorized");
       }
-
-      return { userId: user.id };
+      const subscriptionPlan = await getUserSubscriptionPlan();
+      return { userId: user.id, subscriptionPlan };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("File uploaded");
