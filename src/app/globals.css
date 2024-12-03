@@ -69,7 +69,6 @@
   p {
     font-family: var(--font-inter);
     font-size: 1.2rem;
-    color: #2f2f2f;
   }
   .heading {
     @apply font-bold  text-3xl sm:text-3xl md:text-4xl lg:text-5xl max-w-[18ch] sm:max-w-[23ch] text-center text-wrap leading-10;

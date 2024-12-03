@@ -14,10 +14,10 @@ datasource db {
 }
 
 model User {
-  id                     String      @id @unique
-  email                  String      @unique
-  File                   File[]
-  Chat                   Chat[]
+  id    String @id @unique
+  email String @unique
+  File  File[]
+
   Workspace              Workspace[]
   stripeCustomerId       String?     @unique @map(name: "stripe_customer_id")
   stripeSubscriptionId   String?     @unique @map(name: "stripe_subscription_id")
@@ -62,30 +62,20 @@ model File {
   size         Int
   Workspace    Workspace?   @relation(fields: [workspaceId], references: [id])
   workspaceId  String?
-  Chat         Chat?        @relation(fields: [chatId], references: [id])
-  chatId       String?
   message      Message[]
   Folder       Folder?      @relation(fields: [folderId], references: [id])
   folderId     String?
   vectorStatus VectorStatus @default(PENDING)
 }
 
-model Chat {
-  id        String   @id @default(cuid())
-  name      String
-  createdAt DateTime @default(now())
-  File      File[]
-  userId    String
-  User      User     @relation(fields: [userId], references: [id])
-}
-
 model Workspace {
-  id        String   @id @default(cuid())
-  name      String   @default("untitled workspace")
-  createdAt DateTime @default(now())
+  id        String    @id @default(cuid())
+  name      String    @default("untitled workspace")
+  createdAt DateTime  @default(now())
   File      File[]
+  Messages  Message[]
   userId    String
-  User      User     @relation(fields: [userId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
 }
 
 model Message {
@@ -95,9 +85,11 @@ model Message {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  chatId String?
-  File   File?   @relation(fields: [fileId], references: [id])
-  fileId String?
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  chatId      String?
+  File        File?      @relation(fields: [fileId], references: [id])
+  fileId      String?
+  User        User?      @relation(fields: [userId], references: [id])
+  userId      String?
+  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
+  workspaceId String?
 }

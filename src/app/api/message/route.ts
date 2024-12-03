@@ -16,44 +16,68 @@ export const POST = async (req: NextRequest) => {
   if (!userId) {
     return new Response("Unauthorized", { status: 401 });
   }
-  const { fileId, message } = SendMessageValidator.parse(body);
-
-  const file = await db.file.findFirst({
+  const { workspaceId, message } = SendMessageValidator.parse(body);
+  const workspace = await db.workspace.findFirst({
     where: {
-      id: fileId,
+      id: workspaceId,
       userId,
     },
+    select: {
+      id: true,
+      File: {
+        select: {
+          id: true,
+        },
+      },
+    },
   });
-  if (!file) {
-    return new Response("File not found", { status: 404 });
-  }
+  if (!workspace) return new Response("Workspace not found", { status: 404 });
+
   await db.message.create({
     data: {
       text: message,
       isUserMessage: true,
       userId,
-      fileId,
+      workspaceId,
     },
   });
-
+  const fileIds = workspace.File.map((file) => file.id);
   // #1 Vectorise the embeddings
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: process.env.OPENAI_API_KEY!,
   });
   const pinecone = await initPinecone();
   const pineconeIndex = pinecone.Index("pdf-ai");
-  const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
-    //@ts-expect-error - this is a bug in the pinecone types
-    pineconeIndex,
-    namespace: file.id,
-  });
+
+  const vectorStores: { [key: string]: PineconeStore } = {};
+  for (const fileId of fileIds) {
+    // Create a PineconeStore for each file
+    const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+      //@ts-expect-error - this is a bug in the pinecone types
+      pineconeIndex,
+      namespace: fileId,
+    });
+
+    // Store the vectorStore by file ID
+    vectorStores[fileId] = vectorStore;
+  }
 
   //pro user gets more messages, etc
-  const results = await vectorStore.similaritySearch(message, 4);
+  const topResults = [];
+
+  // Iterate through vector stores and collect similarity search results
+  for (const [fileId, vectorStore] of Object.entries(vectorStores)) {
+    const results = await vectorStore.similaritySearch(message, 4); // Top 4 matches per document
+    topResults.push(...results.map((result) => ({ ...result, fileId }))); // Attach fileId to results
+  }
+
+  // Output the final top results
+  console.log(topResults);
 
   const prevMessage = await db.message.findMany({
     where: {
-      fileId,
+      workspaceId,
+      userId,
     },
     orderBy: {
       createdAt: "asc",
@@ -89,7 +113,7 @@ export const POST = async (req: NextRequest) => {
   \n----------------\n
   
   CONTEXT:
-  ${results.map((r) => r.pageContent).join("\n\n")}
+  ${topResults.map((r) => r.pageContent).join("\n\n")}
   
   USER INPUT: ${message}`,
       },
@@ -105,7 +129,7 @@ export const POST = async (req: NextRequest) => {
           text: completion,
           isUserMessage: false,
           userId,
-          fileId,
+          workspaceId,
         },
       });
     },

@@ -1,5 +1,5 @@
 import z from "zod";
 export const SendMessageValidator = z.object({
-  fileId: z.string(),
+  workspaceId: z.string(),
   message: z.string(),
 });

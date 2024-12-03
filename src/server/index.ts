@@ -12,6 +12,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
+// import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 const utapi = new UTApi();
 export const appRouter = router({
@@ -255,6 +256,7 @@ export const appRouter = router({
     .input(
       z.object({
         ids: z.array(z.string().min(1)),
+        workspaceId: z.string().min(1),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -266,6 +268,7 @@ export const appRouter = router({
           id: {
             in: ids,
           },
+          workspaceId: input.workspaceId,
           vectorStatus: "PENDING",
         },
       });
@@ -277,17 +280,28 @@ export const appRouter = router({
           const loader = new PDFLoader(blob);
           const pageLevelDocs = await loader.load();
           const pagesAmount = pageLevelDocs.length;
+          //Another chunking method
+          // const fullText = pageLevelDocs
+          //   .map((doc) => doc.pageContent)
+          //   .join("\n");
 
+          // // Split text into chunks
+          // const splitter = new RecursiveCharacterTextSplitter({
+          //   chunkSize: 1000, // Adjust chunk size
+          //   chunkOverlap: 200, // Adjust overlap
+          // });
+          // const docs = await splitter.createDocuments([fullText]);
           // vectorise the pages
+          const embeddings = new OpenAIEmbeddings({
+            openAIApiKey: process.env.OPENAI_API_KEY!,
+            model: "text-embedding-3-small",
+          });
 
           const pinecone = new PineconeClient();
           const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
 
           console.log(`Vectorising ${file.name} with ${pagesAmount} pages`);
-          const embeddings = new OpenAIEmbeddings({
-            openAIApiKey: process.env.OPENAI_API_KEY!,
-            model: "text-embedding-3-small",
-          });
+
           console.log("Uploading to Pinecone");
           await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
             //@ts-expect-error - this is a bug in the pinecone types
@@ -340,18 +354,7 @@ export const appRouter = router({
 
       return file;
     }),
-  newChat: privateProcedure
-    .input(z.object({ name: z.string() }))
-    .mutation(async ({ ctx, input }) => {
-      const { userId } = ctx;
-      const chat = await db.chat.create({
-        data: {
-          name: input.name,
-          userId,
-        },
-      });
-      return chat;
-    }),
+
   createFolder: privateProcedure
     .input(
       z.object({
@@ -418,14 +421,6 @@ export const appRouter = router({
   getWorkspaces: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
     return await db.workspace.findMany({
-      where: {
-        userId,
-      },
-    });
-  }),
-  getChats: privateProcedure.query(async ({ ctx }) => {
-    const { userId } = ctx;
-    return await db.chat.findMany({
       where: {
         userId,
       },

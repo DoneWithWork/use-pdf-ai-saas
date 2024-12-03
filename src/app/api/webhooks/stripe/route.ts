@@ -1,9 +1,10 @@
 import db from "../../../../../prisma/db";
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
+import { NextRequest } from "next/server";
 import type Stripe from "stripe";
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   const body = await request.text();
   const signature = (await headers()).get("Stripe-Signature") ?? "";
 
