@@ -20,23 +20,23 @@ export const ChatContext = createContext<StreamResponse>({
 });
 interface ChatContextProviderProps {
   children: React.ReactNode;
-  fileId: string;
+  workspaceId: string;
 }
 export const ChatContextProvider = ({
-  fileId,
+  workspaceId,
   children,
 }: ChatContextProviderProps) => {
   const [message, setMessage] = useState("");
   const [isLoading, setIsloading] = useState(false);
   const utils = trpc.useUtils();
-
+  //store the input message incase of error --> avoid rerendering
   const backUpMessage = useRef("");
   const { mutate: sendMessage } = useMutation({
     mutationFn: async ({ message }: { message: string }) => {
       const response = await fetch("/api/message", {
         method: "POST",
         body: JSON.stringify({
-          fileId,
+          workspaceId,
           message,
         }),
       });
@@ -50,15 +50,15 @@ export const ChatContextProvider = ({
       setMessage("");
 
       //optimistic updates
-      await utils.getFileMessages.cancel();
+      await utils.getWorkspaceChatMessages.cancel();
 
       //step2
-      const previousMessages = utils.getFileMessages.getInfiniteData();
+      const previousMessages = utils.getWorkspaceChatMessages.getInfiniteData();
 
       //stepe 3 insert the new value
-      utils.getFileMessages.setInfiniteData(
+      utils.getWorkspaceChatMessages.setInfiniteData(
         {
-          fileId,
+          workspaceId,
           limit: INFINITE_QUERY_LIMIT,
         },
         (old) => {
@@ -109,9 +109,9 @@ export const ChatContextProvider = ({
         accResponse += chunkValue;
 
         //append chunk to actual message
-        utils.getFileMessages.setInfiniteData(
+        utils.getWorkspaceChatMessages.setInfiniteData(
           {
-            fileId,
+            workspaceId,
             limit: INFINITE_QUERY_LIMIT,
           },
           (old) => {
@@ -160,15 +160,15 @@ export const ChatContextProvider = ({
     },
     onError: (_, __, context) => {
       setMessage(backUpMessage.current);
-      utils.getFileMessages.setData(
-        { fileId },
+      utils.getWorkspaceChatMessages.setData(
+        { workspaceId },
         { messages: context?.previousMessages ?? [] }
       );
     },
     onSettled: async () => {
       setIsloading(false);
-      await utils.getFileMessages.invalidate({
-        fileId,
+      await utils.getWorkspaceChatMessages.invalidate({
+        workspaceId,
       });
     },
   });

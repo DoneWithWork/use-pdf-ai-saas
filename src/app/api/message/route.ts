@@ -23,7 +23,6 @@ export const POST = async (req: NextRequest) => {
       userId,
     },
     select: {
-      id: true,
       File: {
         select: {
           id: true,
@@ -31,6 +30,7 @@ export const POST = async (req: NextRequest) => {
       },
     },
   });
+  console.log(workspaceId);
   if (!workspace) return new Response("Workspace not found", { status: 404 });
 
   await db.message.create({
@@ -72,7 +72,7 @@ export const POST = async (req: NextRequest) => {
   }
 
   // Output the final top results
-  console.log(topResults);
+  console.log("top results: ", topResults);
 
   const prevMessage = await db.message.findMany({
     where: {

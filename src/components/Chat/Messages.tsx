@@ -7,13 +7,13 @@ import Skeleton from "react-loading-skeleton";
 import Message from "./Message";
 import { ChatContext } from "./ChatContext";
 import { useIntersection } from "@mantine/hooks";
-export default function Messages({ fileId }: { fileId: string }) {
+export default function Messages({ workspaceId }: { workspaceId: string }) {
   const { isLoading: isAiThinking } = useContext(ChatContext);
 
   const { data, isLoading, fetchNextPage } =
-    trpc.getFileMessages.useInfiniteQuery(
+    trpc.getWorkspaceChatMessages.useInfiniteQuery(
       {
-        fileId,
+        workspaceId,
         limit: INFINITE_QUERY_LIMIT,
       },
       {

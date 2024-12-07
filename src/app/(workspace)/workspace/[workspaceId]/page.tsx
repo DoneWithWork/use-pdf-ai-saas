@@ -23,42 +23,80 @@ export default function WorkSpace({
   const [workspaceId, setWorkspaceId] = useState<string>("");
   const [curSelectedFile, setCurSelectedFile] = useState<string>("");
 
-  const { data: workspace } = trpc.getOneWorkspace.useQuery(
-    { id: workspaceId },
-    {
-      refetchInterval: false, // Remove the automatic refetch
-    }
-  );
-  const { mutate: vectoriseDocs, isPending } =
+  // Vectorise all the documents in the workspace
+  const { mutate: vectoriseDocs, isPending: isVectorising } =
     trpc.vectoriseDocuments.useMutation({
       onSuccess: () => {
         console.log("Success");
       },
       onError: (error) => {
+        console.log(error);
         return ErrorToast(`Error: ${error.message}`);
       },
       retry: 3,
       retryDelay: 3000,
     });
+
+  const {
+    data: workspace,
+    isLoading: isFetchingWorkspace,
+    isError: failedToFetchWorkspace,
+  } = trpc.getOneWorkspace.useQuery(
+    { id: workspaceId },
+    {
+      refetchInterval: false, // Remove the automatic refetch
+      retry: 3,
+      retryDelay: 1000,
+      enabled: !!workspaceId, // Ensure query only runs after workspaceId is set
+    }
+  );
+
+  // Fetch workspaceId
   useEffect(() => {
     const fetchWorkspaceId = async () => {
       const id = (await params).workspaceId;
       setWorkspaceId(id);
     };
     fetchWorkspaceId();
-    setCurSelectedFile(workspace?.File[0].id || "");
-    vectoriseDocs({
-      ids: workspace?.File.map((file) => file.id) || [],
-      workspaceId: workspaceId,
-    });
-  }, [params, workspace?.File, vectoriseDocs, workspaceId]);
-  if (isPending)
+  }, [params]);
+
+  // Set the default selected file and vectorise documents
+  useEffect(() => {
+    if (workspace && workspaceId) {
+      // Set the default selected file
+      setCurSelectedFile(workspace.File?.[0]?.id || "");
+
+      // Begin vectorising the documents/checking
+      vectoriseDocs({
+        ids: workspace.File.map((file) => file.id) || [],
+        workspaceId: workspaceId,
+      });
+    }
+  }, [workspace, workspaceId, vectoriseDocs]);
+
+  // some simple conditional rendering if loading or failed
+
+  if (isFetchingWorkspace) {
+    return (
+      <div>
+        <p>Fetching your workspace</p>
+        <Loader2 className="my-24 h-6 w-6 animate-spin" />;
+      </div>
+    );
+  }
+  if (failedToFetchWorkspace) {
+    return ErrorToast("Failed to fetch workspace. Please try again");
+  }
+
+  if (isVectorising)
     return (
       <div>
         <p>Vectorising yours PDFs. Please wait</p>
         <Loader2 className="my-24 h-6 w-6 animate-spin" />;
       </div>
     );
+
+  //helper function to return file URL
   const returnFileUrl = (fileId: string) => {
     const file = workspace?.File.find((file) => file.id === fileId);
     return file?.url;
@@ -85,9 +123,10 @@ export default function WorkSpace({
         </div>
 
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
-          <ChatWrapper fileId={curSelectedFile} />
+          <ChatWrapper workspaceId={workspaceId} />
         </div>
-        <div className="ww-full sm:w-32 px-2 grid grid-cols-3 sm:flex sm:flex-col items-center justify-center gap-10  bg-white ">
+        {/* Display currently selected PDF  */}
+        <div className="w-full sm:w-32 px-2 grid grid-cols-3 sm:flex sm:flex-col items-center justify-center gap-10  bg-white ">
           <Suspense
             fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
           >

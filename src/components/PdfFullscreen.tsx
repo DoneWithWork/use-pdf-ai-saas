@@ -1,5 +1,10 @@
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { Expand, Loader2 } from "lucide-react";
 import React, { useState } from "react";
@@ -26,6 +31,7 @@ export default function PdfFullscreen({ url }: { url: string }) {
         </Button>
       </DialogTrigger>
       <DialogContent className="max-w-7xl w-full">
+        <DialogTitle>PDF</DialogTitle>
         <SimpleBar autoHide={false} className="max-h-[calc(100vh-10rem)] mt-6">
           <div ref={ref}>
             <Document

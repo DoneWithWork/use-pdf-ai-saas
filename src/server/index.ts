@@ -167,30 +167,30 @@ export const appRouter = router({
       return file;
     }),
   //need to get accoding to chat history
-  getFileMessages: privateProcedure
+  getWorkspaceChatMessages: privateProcedure
     .input(
       z.object({
         limit: z.number().min(1).max(100).nullish(),
         cursor: z.string().nullish(),
-        fileId: z.string(),
+        workspaceId: z.string(),
       })
     )
     .query(async ({ ctx, input }) => {
       const { userId } = ctx;
-      const { fileId, cursor } = input;
+      const { workspaceId, cursor } = input;
       const limit = input.limit ?? INFINITE_QUERY_LIMIT;
-      const file = await db.file.findFirst({
+      const workspace = await db.workspace.findFirst({
         where: {
-          id: fileId,
+          id: workspaceId,
           userId,
         },
       });
-      if (!file) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!workspace) throw new TRPCError({ code: "NOT_FOUND" });
 
       const messages = await db.message.findMany({
         take: limit + 1,
         where: {
-          fileId,
+          workspaceId,
         },
         orderBy: {
           createdAt: "desc",
@@ -274,69 +274,75 @@ export const appRouter = router({
       });
       if (notVectorisedFiles.length === 0) return;
       try {
-        notVectorisedFiles.forEach(async (file) => {
-          const res = await fetch(file.url);
-          const blob = await res.blob();
-          const loader = new PDFLoader(blob);
-          const pageLevelDocs = await loader.load();
-          const pagesAmount = pageLevelDocs.length;
-          //Another chunking method
-          // const fullText = pageLevelDocs
-          //   .map((doc) => doc.pageContent)
-          //   .join("\n");
+        for (const file of notVectorisedFiles) {
+          try {
+            const res = await fetch(file.url);
+            const blob = await res.blob();
+            const loader = new PDFLoader(blob);
+            const pageLevelDocs = await loader.load();
 
-          // // Split text into chunks
-          // const splitter = new RecursiveCharacterTextSplitter({
-          //   chunkSize: 1000, // Adjust chunk size
-          //   chunkOverlap: 200, // Adjust overlap
-          // });
-          // const docs = await splitter.createDocuments([fullText]);
-          // vectorise the pages
-          const embeddings = new OpenAIEmbeddings({
-            openAIApiKey: process.env.OPENAI_API_KEY!,
-            model: "text-embedding-3-small",
-          });
+            const embeddings = new OpenAIEmbeddings({
+              openAIApiKey: process.env.OPENAI_API_KEY!,
+              model: "text-embedding-3-small",
+            });
 
-          const pinecone = new PineconeClient();
-          const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+            const pinecone = new PineconeClient();
+            const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
 
-          console.log(`Vectorising ${file.name} with ${pagesAmount} pages`);
+            console.log(`Vectorising ${file.name}`);
+            await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+              //@ts-expect-error - this is a bug in the pinecone types
+              pineconeIndex,
+              namespace: file.id,
+            });
 
-          console.log("Uploading to Pinecone");
-          await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-            //@ts-expect-error - this is a bug in the pinecone types
-            pineconeIndex,
-            namespace: file.id,
-          });
-          await db.file.update({
-            data: {
-              vectorStatus: "SUCCESS",
-            },
-            where: {
-              userId,
-              id: file.id,
-            },
-          });
-          console.log(`Done vectorising ${file.name}`);
-        });
+            await db.file.update({
+              data: { vectorStatus: "SUCCESS" },
+              where: {
+                workspaceId: input.workspaceId,
+                userId,
+                id: file.id,
+              },
+            });
+
+            console.log(`Done vectorising ${file.name}`);
+          } catch (error) {
+            console.error(`Error processing file ${file.name}:`, error);
+          }
+        }
       } catch (error) {
-        console.log(error);
+        console.log("Error vectorising documents", error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
-  getFileUploadStatus: privateProcedure
-    .input(z.object({ fileId: z.string() }))
+  // check if all files have been vectorised and uploaded successfully
+  getAllFileStatuses: privateProcedure
+    .input(z.object({ workspaceId: z.string() }))
     .query(async ({ ctx, input }) => {
       const { userId } = ctx;
-      const file = await db.file.findFirst({
+      const workspace = await db.workspace.findFirst({
         where: {
-          id: input.fileId,
-          userId: userId,
+          userId,
+          id: input.workspaceId,
+        },
+        select: {
+          File: true,
         },
       });
-      if (!file) return { status: "PENDING" as const };
+      if (!workspace) return { status: "PENDING" as const };
 
-      return { status: file.uploadStatus };
+      //some --> if any of the files are not vectorised or uploaded exit early and return true
+      const hasIncompleteFiles = workspace.File.some(
+        (file) =>
+          file.uploadStatus !== "SUCCESS" || file.vectorStatus !== "SUCCESS"
+      );
+
+      if (hasIncompleteFiles) {
+        return { status: "PROCESSING" as const };
+      }
+
+      // If all files are successfully processed
+      return { status: "SUCCESS" as const };
     }),
   getFile: privateProcedure
     .input(z.object({ key: z.string() }))
