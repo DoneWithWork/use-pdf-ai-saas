@@ -22,7 +22,7 @@ export default function AuthCallBack() {
       router.push("/");
     }
     if (data?.success) {
-      router.push(origin ? `/${origin}` : "/dashboard");
+      router.push(origin ? `/dashboard/workspaces` : "/dashboard/workspaces");
     }
   }, [error, data, origin, router]);
 

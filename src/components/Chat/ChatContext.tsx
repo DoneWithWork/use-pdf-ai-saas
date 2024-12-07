@@ -9,6 +9,7 @@ type StreamResponse = {
   addMessage: () => void;
   message: string;
   handleInputChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  setNewMessage: (message: string) => void;
   isLoading: boolean;
 };
 
@@ -16,6 +17,7 @@ export const ChatContext = createContext<StreamResponse>({
   addMessage: () => {},
   message: "",
   handleInputChange: () => {},
+  setNewMessage: () => {},
   isLoading: false,
 });
 interface ChatContextProviderProps {
@@ -177,9 +179,13 @@ export const ChatContextProvider = ({
   const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setMessage(event.target.value);
   };
+  const setNewMessage = (message: string) => {
+    setMessage(message);
+  };
   return (
     <ChatContext.Provider
       value={{
+        setNewMessage,
         addMessage,
         message,
         handleInputChange,

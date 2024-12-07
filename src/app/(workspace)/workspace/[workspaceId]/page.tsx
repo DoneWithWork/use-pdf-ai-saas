@@ -123,7 +123,10 @@ export default function WorkSpace({
         </div>
 
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
-          <ChatWrapper workspaceId={workspaceId} />
+          <ChatWrapper
+            workspaceId={workspaceId}
+            files={workspace?.File || []}
+          />
         </div>
         {/* Display currently selected PDF  */}
         <div className="w-full sm:w-32 px-2 grid grid-cols-3 sm:flex sm:flex-col items-center justify-center gap-10  bg-white ">

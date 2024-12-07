@@ -96,7 +96,7 @@ export const POST = async (req: NextRequest) => {
       {
         role: "system",
         content:
-          "Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format.",
+          "Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format. If a document is specified, use use the title of the provided document to search with the context for the answer. If multiple documents are give, look carefully for the correct context. If you don't know the answer, just say that you don't know, don't try to make up an answer.",
       },
       {
         role: "user",

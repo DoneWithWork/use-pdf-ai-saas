@@ -4,12 +4,15 @@ import ChatInput from "../ChatInput";
 import { trpc } from "@/app/_trpc/client";
 import { Loader2 } from "lucide-react";
 import { ChatContextProvider } from "./ChatContext";
+import { File } from "@prisma/client";
+import { FileType } from "@/types/message";
 
 type ChatWrapperProps = {
   workspaceId: string;
+  files: FileType[];
 };
 
-export default function ChatWrapper({ workspaceId }: ChatWrapperProps) {
+export default function ChatWrapper({ workspaceId, files }: ChatWrapperProps) {
   const { data, isLoading } = trpc.getAllFileStatuses.useQuery(
     { workspaceId }, // Pass the fileId as input
     {
@@ -32,7 +35,7 @@ export default function ChatWrapper({ workspaceId }: ChatWrapperProps) {
             <p>This may take a few seconds</p>
           </div>
         </div>
-        <ChatInput isDisabled />
+        <ChatInput files={files} isDisabled />
       </div>
     );
   if (data?.status === "PROCESSING")
@@ -47,7 +50,7 @@ export default function ChatWrapper({ workspaceId }: ChatWrapperProps) {
             <p>This won&apos;t take long.</p>
           </div>
         </div>
-        <ChatInput isDisabled />
+        <ChatInput isDisabled files={files} />
       </div>
     );
   // if (data?.status === "FAILED")
@@ -68,11 +71,11 @@ export default function ChatWrapper({ workspaceId }: ChatWrapperProps) {
   //   );
   return (
     <ChatContextProvider workspaceId={workspaceId}>
-      <div className="relative min-h-full bg-zinc-50 flex divide-y divide-zinc-200 flex-col justify-between gap-2">
+      <div className="relative min-h-full bg-zinc-50 flex  flex-col justify-between gap-2">
         <div className="flex-1 flex justify-center items-center flex-col mb-28">
           <Messages workspaceId={workspaceId} />
         </div>
-        <ChatInput />
+        <ChatInput files={files} />
       </div>
     </ChatContextProvider>
   );

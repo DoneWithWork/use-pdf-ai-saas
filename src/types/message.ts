@@ -14,3 +14,7 @@ type ExtendedText = {
 };
 
 export type ExtendedMessage = OmitText & ExtendedText;
+export type FileType = {
+  id: string;
+  name: string;
+};
