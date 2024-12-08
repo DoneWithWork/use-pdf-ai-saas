@@ -119,11 +119,12 @@ export const appRouter = router({
           userId,
         },
         select: {
+          name: true,
           Files: true,
           createdAt: false,
         },
       });
-      return folder?.Files;
+      return folder;
     }),
   // Returns a User's documents, paginated
   getUserDocumentPaginated: privateProcedure

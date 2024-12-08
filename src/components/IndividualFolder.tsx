@@ -15,7 +15,7 @@ export const useFolderId = () => {
 };
 export default function IndividualFolder({ folderId }: { folderId: string }) {
   const [thefolderId, setFolderId] = useState<string>(folderId);
-  const { data: files, isLoading } = trpc.getSingleFolder.useQuery(
+  const { data: folder, isLoading } = trpc.getSingleFolder.useQuery(
     {
       folderId: thefolderId,
     },
@@ -34,15 +34,17 @@ export default function IndividualFolder({ folderId }: { folderId: string }) {
           <Link href={"/dashboard/documents"}>
             <ArrowLeftIcon size={30} className="text-blue-600 cursor-pointer" />
           </Link>
-          <h1 className="font-semibold text-3xl">Folder</h1>
+          <h1 className="font-semibold text-3xl">
+            {folder?.name || "Loading..."}
+          </h1>
         </div>
         <FolderIdContext.Provider value={{ folderId: thefolderId }}>
           <UploadDocuments />
         </FolderIdContext.Provider>
       </div>
       <div>
-        {files && files.length > 0 ? (
-          files.map((file, index) => (
+        {folder && folder.Files.length > 0 ? (
+          folder.Files.map((file, index) => (
             <div key={index}>
               <p>{file.name}</p>
             </div>
