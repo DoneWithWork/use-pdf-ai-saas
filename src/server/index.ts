@@ -109,7 +109,22 @@ export const appRouter = router({
     }
     return { success: true };
   }),
-
+  getSingleFolder: privateProcedure
+    .input(z.object({ folderId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      const folder = await db.folders.findFirst({
+        where: {
+          id: input.folderId,
+          userId,
+        },
+        select: {
+          Files: true,
+          createdAt: false,
+        },
+      });
+      return folder?.Files;
+    }),
   // Returns a User's documents, paginated
   getUserDocumentPaginated: privateProcedure
     .input(
@@ -128,9 +143,21 @@ export const appRouter = router({
             userId,
           },
         }),
-        db.folder.findMany({
+        db.folders.findMany({
           where: {
             userId,
+          },
+          select: {
+            name: true,
+            id: true,
+            userId: true,
+            createdAt: true,
+            updatedAt: true,
+            Files: {
+              select: {
+                id: true,
+              },
+            },
           },
         }),
       ]);
@@ -162,27 +189,38 @@ export const appRouter = router({
       },
     });
   }),
-  deleteFile: privateProcedure
-    .input(z.object({ id: z.string() }))
+  deleteDoc: privateProcedure
+    .input(z.object({ id: z.string(), isFolder: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
+      try {
+        if (input.isFolder) {
+          await db.folders.delete({
+            where: {
+              userId,
+              id: input.id,
+            },
+          });
+        } else {
+          const file = await db.file.delete({
+            where: {
+              userId,
+              id: input.id,
+            },
+          });
+          await utapi.deleteFiles(file.key);
+          const pinecone = new PineconeClient();
+          pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
+            ids: [file.id],
+          });
+        }
+      } catch {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
 
-      const file = await db.file.findFirst({
-        where: {
-          id: input.id,
-          userId: userId,
-        },
-      });
-      if (!file) throw new TRPCError({ code: "NOT_FOUND" });
-      await db.file.delete({ where: { id: input.id } });
-      await utapi.deleteFiles(file.key);
       //delete embeddings
-      const pinecone = new PineconeClient();
-      pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
-        ids: [file.id],
-      });
 
-      return file;
+      return { success: true };
     }),
   //need to get accoding to chat history
   getWorkspaceChatMessages: privateProcedure
@@ -387,7 +425,7 @@ export const appRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
-      const folder = await db.folder.create({
+      const folder = await db.folders.create({
         data: {
           userId,
           name: input.name,

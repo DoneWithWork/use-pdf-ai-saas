@@ -4,9 +4,20 @@ import { trpc } from "@/app/_trpc/client";
 import { Ghost, Loader2, Trash } from "lucide-react";
 import React from "react";
 import { format } from "date-fns";
+import { File as FileTypes } from "@prisma/client";
 import { Button } from "@/components/ui/button";
 import byteSize from "byte-size";
-import { File as FileTypes } from "@prisma/client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 import {
   Pagination,
@@ -27,10 +38,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import UploadDocuments from "@/components/UploadDocuments";
 import NewFolder from "@/components/NewFolder";
 import { FileOrFolder } from "@/types/message";
+
 export default function Documents() {
   const [currentDeletingFile, setCurrentDeletingFile] = React.useState<
     string | null
@@ -38,8 +50,8 @@ export default function Documents() {
   const utils = trpc.useUtils();
   const searchParams = useSearchParams();
   const page = +(searchParams.get("page") ?? 1);
-
-  const { mutate: deleteFile } = trpc.deleteFile.useMutation({
+  const router = useRouter();
+  const { mutate: deleteFile } = trpc.deleteDoc.useMutation({
     onSuccess: () => {
       utils.getUserFiles.invalidate();
     },
@@ -137,33 +149,62 @@ export default function Documents() {
 
           <TableBody>
             {documents.map((doc: FileOrFolder, index: number) => (
-              <TableRow key={index}>
+              <TableRow
+                key={index}
+                className={`${"size" in doc ? "" : "cursor-pointer"}`}
+                onClick={() => {
+                  if (!("size" in doc)) {
+                    router.push("/dashboard/documents/folder/" + doc.id);
+                  }
+                }}
+              >
                 <TableCell colSpan={4} className="font-medium">
                   {doc.name}
                 </TableCell>
                 <TableCell>
                   {"size" in doc ? (
                     <div>{byteSize(doc.size).toString()}</div> // Assuming `size` exists only on File
+                  ) : "Files" in doc ? (
+                    <div>{(doc.Files as FileTypes[]).length} Files</div>
                   ) : (
-                    <div>-</div> // Folder-specific property
+                    <div>Folder</div>
                   )}
                 </TableCell>
                 <TableCell>
-                  {format(new Date(doc.createdAt), "dd/MM/yyyy")}{" "}
+                  {format(new Date(doc.createdAt), "dd/MM/yyyy")}
                 </TableCell>
                 <TableCell className="text-right">
-                  <Button
-                    onClick={() => deleteFile({ id: doc.id })}
-                    size={"sm"}
-                    variant={"destructive"}
-                    className=""
-                  >
-                    {currentDeletingFile === doc.id ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Trash className="w-4 h-4" />
-                    )}
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button
+                        // onClick={() => deleteFile({ id: doc.id })}
+                        size={"sm"}
+                        variant={"destructive"}
+                        className=""
+                      >
+                        {currentDeletingFile === doc.id ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. This will permanently
+                          delete your {"size" in doc ? "file" : "folder"}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction>Continue</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}

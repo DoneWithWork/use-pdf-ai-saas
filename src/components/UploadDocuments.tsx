@@ -20,7 +20,7 @@ export default function UploadDocuments() {
             <Drawer.CloseButton />
           </Drawer.Header>
           <Drawer.Body>
-            <OurUploadDropzone />
+            <OurUploadDropzone close={close} />
           </Drawer.Body>
         </Drawer.Content>
       </Drawer.Root>

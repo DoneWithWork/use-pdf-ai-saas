@@ -61,6 +61,7 @@ const ChatInput = ({ isDisabled, files }: ChatInputProps) => {
               <div className="relative">
                 <Textarea
                   rows={1}
+                  autoCorrect={"on"}
                   ref={textareaRef}
                   maxRows={4}
                   autoFocus

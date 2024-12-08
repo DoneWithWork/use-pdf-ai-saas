@@ -1,11 +1,11 @@
 import { AppRouter } from "@/server";
-import { File, Folder } from "@prisma/client";
+import { File, Folders } from "@prisma/client";
 import { inferRouterOutputs } from "@trpc/server";
 
 //infer the output of any types
 type RouterOutput = inferRouterOutputs<AppRouter>;
 
-type Messages = RouterOutput["getFileMessages"]["messages"];
+type Messages = RouterOutput["getWorkspaceChatMessages"]["messages"];
 
 type OmitText = Omit<Messages[number], "text">;
 
@@ -19,4 +19,4 @@ export type FileType = {
   id: string;
   name: string;
 };
-export type FileOrFolder = File | Folder;
+export type FileOrFolder = File | Folders;

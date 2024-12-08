@@ -15,17 +15,22 @@ const f = createUploadthing();
 
 export const ourFileRouter = {
   documentUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "16MB" } })
-    .middleware(async ({ req }) => {
+    .input(z.object({ folderId: z.string().nullable() }))
+    .middleware(async ({ req, input }) => {
       const { getUser } = getKindeServerSession();
       const user = await getUser();
       if (!user || !user.id) {
         if (!user) throw new UploadThingError("Unauthorized");
       }
       const subscriptionPlan = await getUserSubscriptionPlan();
-      return { userId: user.id, subscriptionPlan };
+
+      // check if user has the right subscription plan
+
+      return { userId: user.id, subscriptionPlan, folderId: input.folderId };
     })
     .onUploadComplete(async ({ metadata, file }) => {
       console.log("File uploaded");
+      console.log(metadata);
       const createdFile = await db.file.create({
         data: {
           userId: metadata.userId,
@@ -36,6 +41,21 @@ export const ourFileRouter = {
           key: file.key,
         },
       });
+      if (metadata.folderId) {
+        await db.folders.update({
+          where: {
+            userId: metadata.userId,
+            id: metadata.folderId,
+          },
+          data: {
+            Files: {
+              connect: {
+                id: createdFile.id,
+              },
+            },
+          },
+        });
+      }
     }),
   pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
     .middleware(async ({ req }) => {
