@@ -103,7 +103,10 @@ export default function WorkSpace({
   };
   return (
     <div className=" justify-between flex flex-col w-full  h-screen max-h-screen md:overflow-hidden">
-      <WorkspaceNav workspaceName={workspace?.name || ""} />
+      <WorkspaceNav
+        workspaceName={workspace?.name || ""}
+        workspaceId={workspaceId}
+      />
       <div className=" w-full max-w-8xl  h-full lg:flex   ">
         <div className="  xl:flex-1 ">
           {/* Main area */}

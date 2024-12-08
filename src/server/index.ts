@@ -12,6 +12,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
+import { FileOrFolder } from "@/types/message";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 const utapi = new UTApi();
@@ -65,6 +66,21 @@ export const appRouter = router({
     // Retrieve users from a datasource, this is an imaginary database
     return [1, 2, 3];
   }),
+  renameFile: privateProcedure
+    .input(z.object({ workspaceId: z.string(), newName: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      await db.workspace.update({
+        where: {
+          id: input.workspaceId,
+          userId,
+        },
+        data: {
+          name: input.newName,
+        },
+      });
+      return { success: true };
+    }),
   authCallback: publicProcedure.query(async () => {
     // Retrieve users from a datasource, this is an imaginary database
     const { getUser } = getKindeServerSession();
@@ -106,32 +122,34 @@ export const appRouter = router({
       const { userId } = ctx;
       const page = input.page ?? 1;
       const offset = (page - 1) * input.totalItems;
-      const totalCount = await db.file.count({
-        where: {
-          userId,
-        },
+      const [files, folders] = await Promise.all([
+        db.file.findMany({
+          where: {
+            userId,
+          },
+        }),
+        db.folder.findMany({
+          where: {
+            userId,
+          },
+        }),
+      ]);
+      const dataToSort = [...files, ...folders];
+
+      const totalPages = Math.ceil(dataToSort.length / input.totalItems);
+
+      const sortedData = dataToSort.sort((itemA, itemB) => {
+        return (
+          new Date(itemB.createdAt).getTime() -
+          new Date(itemA.createdAt).getTime()
+        );
       });
-      const totalPages = Math.ceil(totalCount / input.totalItems);
-      const limit = 5;
-      const files = await db.file.findMany({
-        skip: offset, // This is the offset
-        take: limit, // This is the limit
-        where: {
-          userId,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        select: {
-          id: true,
-          size: true,
-          name: true,
-          createdAt: true,
-          workspaceId: true,
-        },
-      });
+      const paginatedData: FileOrFolder[] = sortedData.slice(
+        offset,
+        offset + input.totalItems
+      );
       return {
-        files,
+        files: paginatedData,
         totalPages,
       };
     }),
@@ -378,6 +396,7 @@ export const appRouter = router({
       if (!folder) {
         throw new TRPCError({ code: "BAD_REQUEST" });
       }
+
       return true;
     }),
   renameWorkspace: privateProcedure

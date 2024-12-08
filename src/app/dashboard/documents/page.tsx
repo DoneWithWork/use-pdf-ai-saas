@@ -6,6 +6,7 @@ import React from "react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import byteSize from "byte-size";
+import { File as FileTypes } from "@prisma/client";
 
 import {
   Pagination,
@@ -28,6 +29,8 @@ import {
 
 import { useSearchParams } from "next/navigation";
 import UploadDocuments from "@/components/UploadDocuments";
+import NewFolder from "@/components/NewFolder";
+import { FileOrFolder } from "@/types/message";
 export default function Documents() {
   const [currentDeletingFile, setCurrentDeletingFile] = React.useState<
     string | null
@@ -52,14 +55,20 @@ export default function Documents() {
     page: page < 1 ? 1 : page,
     totalItems: 5,
   });
-  const files = data?.files ?? [];
+  const documents: FileOrFolder[] =
+    data?.files.map((file) => ({
+      ...file,
+      createdAt: new Date(file.createdAt),
+      updatedAt: new Date(file.updatedAt),
+    })) ?? [];
   const totalPages = data?.totalPages ?? 0;
 
   return (
     <div className="w-full h-full flex flex-col ">
       <div className="p-5 flex flex-row items-center justify-between">
         <h1 className="title">Documents</h1>
-        <div className="">
+        <div className="flex flex-row gap-3 items-center">
+          <NewFolder />
           <UploadDocuments />
         </div>
       </div>
@@ -67,7 +76,7 @@ export default function Documents() {
       <div className="px-4  max-w-full">
         <Table className="w-full overflow-x-scroll">
           <TableCaption>
-            {(files?.length ?? 0) > 0 ? (
+            {(documents?.length ?? 0) > 0 ? (
               <Pagination>
                 <PaginationContent>
                   {page > 1 && (
@@ -125,24 +134,31 @@ export default function Documents() {
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
+
           <TableBody>
-            {files.map((file, index) => (
+            {documents.map((doc: FileOrFolder, index: number) => (
               <TableRow key={index}>
                 <TableCell colSpan={4} className="font-medium">
-                  {file.name}
+                  {doc.name}
                 </TableCell>
-                <TableCell>{byteSize(file.size).toString()}</TableCell>
                 <TableCell>
-                  {format(new Date(file.createdAt), "dd/MM/yyyy")}{" "}
+                  {"size" in doc ? (
+                    <div>{byteSize(doc.size).toString()}</div> // Assuming `size` exists only on File
+                  ) : (
+                    <div>-</div> // Folder-specific property
+                  )}
+                </TableCell>
+                <TableCell>
+                  {format(new Date(doc.createdAt), "dd/MM/yyyy")}{" "}
                 </TableCell>
                 <TableCell className="text-right">
                   <Button
-                    onClick={() => deleteFile({ id: file.id })}
+                    onClick={() => deleteFile({ id: doc.id })}
                     size={"sm"}
                     variant={"destructive"}
                     className=""
                   >
-                    {currentDeletingFile === file.id ? (
+                    {currentDeletingFile === doc.id ? (
                       <Loader2 className="h-4 w-4 animate-spin" />
                     ) : (
                       <Trash className="w-4 h-4" />

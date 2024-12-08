@@ -1,4 +1,5 @@
 import { AppRouter } from "@/server";
+import { File, Folder } from "@prisma/client";
 import { inferRouterOutputs } from "@trpc/server";
 
 //infer the output of any types
@@ -18,3 +19,4 @@ export type FileType = {
   id: string;
   name: string;
 };
+export type FileOrFolder = File | Folder;

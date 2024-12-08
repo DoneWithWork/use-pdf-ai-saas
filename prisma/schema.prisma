@@ -25,6 +25,7 @@ model User {
   stripeCurrentPeriodEnd DateTime?   @map(name: "stripe_current_period_end")
   message                Message[]
   Folders                Folder[]
+  Documents              Documents[]
 }
 
 enum UploadStatus {
@@ -42,11 +43,15 @@ enum VectorStatus {
 }
 
 model Folder {
-  id     String  @id @default(cuid())
-  name   String
-  Files  File[]
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
+  id          String     @id @default(cuid())
+  name        String     @default("")
+  Files       File[]
+  User        User?      @relation(fields: [userId], references: [id])
+  userId      String?
+  Documents   Documents? @relation(fields: [documentsId], references: [id])
+  documentsId String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @default(now()) @updatedAt
 }
 
 model File {
@@ -66,6 +71,8 @@ model File {
   Folder       Folder?      @relation(fields: [folderId], references: [id])
   folderId     String?
   vectorStatus VectorStatus @default(PENDING)
+  Documents    Documents?   @relation(fields: [documentsId], references: [id])
+  documentsId  String?
 }
 
 model Workspace {
@@ -92,4 +99,14 @@ model Message {
   userId      String?
   Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
   workspaceId String?
+}
+
+model Documents {
+  id        String   @id @default(cuid())
+  Folders   Folder[]
+  File      File[]
+  User      User?    @relation(fields: [userId], references: [id])
+  userId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
