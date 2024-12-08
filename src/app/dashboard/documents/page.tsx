@@ -51,7 +51,7 @@ export default function Documents() {
   const searchParams = useSearchParams();
   const page = +(searchParams.get("page") ?? 1);
   const router = useRouter();
-  const { mutate: deleteFile } = trpc.deleteDoc.useMutation({
+  const {} = trpc.deleteDoc.useMutation({
     onSuccess: () => {
       utils.getUserFiles.invalidate();
     },

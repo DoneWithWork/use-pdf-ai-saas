@@ -5,7 +5,6 @@ import React, { useContext, useRef, useState } from "react";
 import { ChatContext } from "./Chat/ChatContext";
 import { motion } from "motion/react";
 
-import { File } from "@prisma/client";
 import { cn, shortenName } from "@/lib/utils";
 import { FileType } from "@/types/message";
 

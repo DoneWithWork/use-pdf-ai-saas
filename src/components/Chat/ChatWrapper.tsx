@@ -4,7 +4,6 @@ import ChatInput from "../ChatInput";
 import { trpc } from "@/app/_trpc/client";
 import { Loader2 } from "lucide-react";
 import { ChatContextProvider } from "./ChatContext";
-import { File } from "@prisma/client";
 import { FileType } from "@/types/message";
 
 type ChatWrapperProps = {
