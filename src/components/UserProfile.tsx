@@ -17,7 +17,7 @@ export default async function UserProfile() {
 
   return (
     <Popover>
-      <PopoverTrigger className="w-full  hover:bg-blue-300 transition-all rounded-xl">
+      <PopoverTrigger className="w-full  hover:bg-blue-400 transition-all rounded-xl">
         <div className="flex flex-row justify-between items-center mx-2 my-1 ">
           <div className="flex flex-row items-center gap-2">
             {user?.picture ? (
@@ -26,7 +26,7 @@ export default async function UserProfile() {
                 width={36}
                 height={36}
                 alt="user profile image"
-                className="w-9 h-9"
+                className="h-9 w-9 "
               />
             ) : (
               <Avatar>
@@ -34,7 +34,7 @@ export default async function UserProfile() {
                 <AvatarFallback>CN</AvatarFallback>
               </Avatar>
             )}
-            <p className="important_text hidden sm:block">
+            <p className="important_text text-lg">
               {shortenName(user?.given_name || "", 15)}
             </p>
           </div>

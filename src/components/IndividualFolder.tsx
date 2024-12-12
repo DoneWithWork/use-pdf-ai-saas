@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeftIcon } from "lucide-react";
+import { ArrowLeftIcon, Folder } from "lucide-react";
 import Link from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import UploadDocuments from "./UploadDocuments";
@@ -28,13 +28,14 @@ export default function IndividualFolder({ folderId }: { folderId: string }) {
     setFolderId(folderId);
   }, [folderId]);
   return (
-    <div>
+    <div className="wrapper">
       <div className="flex flex-row justify-between">
         <div className="flex flex-row items-center gap-2">
           <Link href={"/dashboard/documents"}>
             <ArrowLeftIcon size={30} className="text-blue-600 cursor-pointer" />
           </Link>
-          <h1 className="font-semibold text-3xl">
+          <h1 className="title flex flex-row items-center gap-3">
+            <Folder size={30} />
             {folder?.name || "Loading..."}
           </h1>
         </div>
@@ -42,7 +43,7 @@ export default function IndividualFolder({ folderId }: { folderId: string }) {
           <UploadDocuments />
         </FolderIdContext.Provider>
       </div>
-      <div>
+      <div className="mt-4">
         {folder && folder.Files.length > 0 ? (
           folder.Files.map((file, index) => (
             <div key={index}>

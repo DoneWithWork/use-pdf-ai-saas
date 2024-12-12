@@ -15,8 +15,8 @@ export default function Workspaces() {
   );
 
   return (
-    <div className="w-full flex flex-col h-screen ">
-      <div className="px-8 py-6 flex flex-row w-full justify-between items-center">
+    <div className="w-full flex flex-col h-screen wrapper">
+      <div className="px-2 py-6 flex flex-row w-full justify-between items-center flex-wrap">
         <div className="space-y-1">
           <h1 className="title">Conversations</h1>
           <p className="description">Chat with your documents </p>
@@ -29,7 +29,7 @@ export default function Workspaces() {
           <Link
             href={`/workspace/${workspace.id}`}
             key={workspace.id}
-            className="w-full bg-gray-100 px-5 py-2 rounded-md m-5 block"
+            className="w-full bg-gray-100 px-5 py-2 rounded-md m-2 block"
           >
             {workspace.name}
           </Link>

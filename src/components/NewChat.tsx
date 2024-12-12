@@ -24,7 +24,7 @@ export default function NewChat() {
     onSuccess: (res) => {
       console.log("Chat created successfully");
       SuccessToast("Chat created successfully");
-      router.push(`/workspaces/${res.id}`);
+      router.push(`/workspace/${res.id}`);
     },
     onError: (err) => {
       ErrorToast(`Error creating chat: ${err.message}`);
@@ -110,7 +110,7 @@ export default function NewChat() {
         </Drawer.Content>
       </Drawer.Root>
 
-      <Button onClick={open}>
+      <Button onClick={open} className="mt-4 sm:mt-0">
         <div className="flex flex-row gap-1 items-center">
           <Plus size={25} />
           <span>New Chat</span>

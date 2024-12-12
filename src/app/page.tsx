@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import ImagePlaceholder from "../public/imagePlaceholder.png";
 import LandingNav from "../components/LandingNav";
+import Footer from "@/components/Footer";
 
 export default function Home() {
   // const getList = trpc.getList.useQuery();
@@ -97,14 +98,7 @@ export default function Home() {
           </RegisterLink>
         </Button>
       </div>
-      <footer className="w-full h-32 bg-blue-100 mt-5">
-        <div>
-          <p>PDF AI</p>
-          <p>
-            PDF AI is your goto tool for getting instant answers from your PDFs
-          </p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

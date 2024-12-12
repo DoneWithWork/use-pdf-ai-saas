@@ -41,10 +41,18 @@ export default function WorkspaceNav({
           value={curName}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
+              if (curName === "") {
+                setCurName("untitled document");
+              }
               saveNewName();
+              // Remove focus from the input
+              event.currentTarget.blur();
             }
           }}
           onBlur={() => {
+            if (curName === "") {
+              setCurName("untitled document");
+            }
             saveNewName();
           }}
           onFocus={(event) => {
@@ -56,7 +64,7 @@ export default function WorkspaceNav({
       </div>
       <div>
         <Link
-          href={""}
+          href={"/pricing"}
           className="font-semibold text-blue-500 flex-row-custom gap-2"
         >
           <CloudLightningIcon size={25} className="" />

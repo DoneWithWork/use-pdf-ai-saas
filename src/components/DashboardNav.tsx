@@ -1,14 +1,18 @@
+"use client";
 import { File, WorkflowIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
-import UserProfile from "./UserProfile";
+import { usePathname } from "next/navigation";
+
 import Logo from "@/public/logo.png";
 import Image from "next/image";
-const DashboardNav = async () => {
+import { cn } from "@/lib/utils";
+
+const DashboardNav = ({ children }: { children: React.ReactNode }) => {
+  const pathName = usePathname();
   return (
     <div>
-      <nav className="block sm:hidden">{/* <h1>Hi</h1> */}</nav>
-      <nav className="bg-blue-200 lg:w-64 h-screen hidden sm:block">
+      <nav className="bg-blue-200 w-64 h-screen hidden md:block">
         <div className="px-2 py-3 flex flex-col h-screen justify-between">
           <div>
             <div className="flex flex-col items-center  mt-5">
@@ -17,26 +21,34 @@ const DashboardNav = async () => {
               </Link>
             </div>
             <div className="space-y-6 mt-10">
-              <Link href={"/dashboard/workspaces"} className="icon_link">
+              <Link
+                href={"/dashboard/workspaces"}
+                className={cn(
+                  pathName === "/dashboard/workspaces"
+                    ? "bg-blue-400 text-gray-100"
+                    : "",
+                  "icon_link"
+                )}
+              >
                 <WorkflowIcon size={20} />
                 <p className="text-xl hidden sm:block">Workspaces</p>
               </Link>
 
-              <Link href={"/dashboard/documents"} className="icon_link">
+              <Link
+                href={"/dashboard/documents"}
+                className={cn(
+                  pathName === "/dashboard/documents"
+                    ? "bg-blue-400 text-gray-100"
+                    : "",
+                  "icon_link"
+                )}
+              >
                 <File size={20} />
                 <p className="text-xl hidden sm:block">Documents</p>
               </Link>
             </div>
-            {/* <Link
-              href={"/dashboard/settings"}
-              className="flex flex-row items-center gap-2"
-            >
-              <Settings size={20} />
-              <p className="text-xl hidden sm:block">Settings</p>
-            </Link> */}
           </div>
-
-          <UserProfile />
+          {children}
         </div>
       </nav>
     </div>

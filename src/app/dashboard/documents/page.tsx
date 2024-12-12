@@ -94,8 +94,8 @@ export default function Documents() {
   const totalPages = data?.totalPages ?? 0;
 
   return (
-    <div className="w-full h-full flex flex-col ">
-      <div className="p-5 flex flex-row items-center justify-between">
+    <div className="w-full h-full flex flex-col wrapper">
+      <div className="p-5 flex flex-row items-center justify-between flex-wrap">
         <h1 className="title">Documents</h1>
         <div className="flex flex-row gap-3 items-center">
           <NewFolder />
@@ -104,7 +104,7 @@ export default function Documents() {
       </div>
       {/* Displa all files*/}
       <div className="px-4  max-w-full">
-        <Table className="w-full overflow-x-scroll">
+        <Table className="w-full overflow-x-scroll border-2 border-blue-200 rounded-xl">
           <TableCaption>
             {(documents?.length ?? 0) > 0 ? (
               <Pagination>

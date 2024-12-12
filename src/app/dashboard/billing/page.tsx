@@ -6,7 +6,7 @@ const Page = async () => {
 
   return (
     <div className="wrapper">
-      <h1 className="title">Billing</h1>
+      <h1 className="title mt-5">Billing</h1>
       <BillingForm subscriptionPlan={subscriptionPlan} />
     </div>
   );

@@ -9,6 +9,7 @@ import React, { Suspense, useEffect, useState } from "react";
 
 import { ErrorToast } from "@/components/Toasts";
 import WorkspaceNav from "@/components/WorkspaceNav";
+import Loader from "@/components/Loader";
 const PdfViewerComponent = dynamic(
   () => import("../../../../components/PdfRenderer"),
   {
@@ -24,22 +25,21 @@ export default function WorkSpace({
   const [curSelectedFile, setCurSelectedFile] = useState<string>("");
 
   // Vectorise all the documents in the workspace
-  const { mutate: vectoriseDocs, isPending: isVectorising } =
-    trpc.vectoriseDocuments.useMutation({
-      onSuccess: () => {
-        console.log("Success");
-      },
-      onError: (error) => {
-        console.log(error);
-        return ErrorToast(`Error: ${error.message}`);
-      },
-      retry: 3,
-      retryDelay: 3000,
-    });
+  const { mutate: vectoriseDocs } = trpc.vectoriseDocuments.useMutation({
+    onSuccess: () => {
+      console.log("Success");
+    },
+    onError: (error) => {
+      console.log(error);
+      return ErrorToast(`Error: ${error.message}`);
+    },
+    retry: 3,
+    retryDelay: 3000,
+  });
 
   const {
     data: workspace,
-    isLoading: isFetchingWorkspace,
+
     isError: failedToFetchWorkspace,
   } = trpc.getOneWorkspace.useQuery(
     { id: workspaceId },
@@ -76,25 +76,9 @@ export default function WorkSpace({
 
   // some simple conditional rendering if loading or failed
 
-  if (isFetchingWorkspace) {
-    return (
-      <div>
-        <p>Fetching your workspace</p>
-        <Loader2 className="my-24 h-6 w-6 animate-spin" />;
-      </div>
-    );
-  }
   if (failedToFetchWorkspace) {
     return ErrorToast("Failed to fetch workspace. Please try again");
   }
-
-  if (isVectorising)
-    return (
-      <div>
-        <p>Vectorising yours PDFs. Please wait</p>
-        <Loader2 className="my-24 h-6 w-6 animate-spin" />;
-      </div>
-    );
 
   //helper function to return file URL
   const returnFileUrl = (fileId: string) => {
@@ -109,9 +93,8 @@ export default function WorkSpace({
       />
       <div className=" w-full max-w-8xl  h-full lg:flex   ">
         <div className="  xl:flex-1 ">
-          {/* Main area */}
-          {workspace ? (
-            <div className="bg-white h-full">
+          <div className="bg-white h-full">
+            {workspace ? (
               <Suspense
                 fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
               >
@@ -119,20 +102,20 @@ export default function WorkSpace({
                   url={returnFileUrl(curSelectedFile) || ""}
                 />
               </Suspense>
-            </div>
-          ) : (
-            <p>Loading</p>
-          )}
+            ) : (
+              <Loader message="Loading your document" />
+            )}
+          </div>
         </div>
 
-        <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
+        <div className="shrink-0 max-w-screen flex-[0.75] border-t border-gray-200  lg:border-l lg:border-t-0">
           <ChatWrapper
             workspaceId={workspaceId}
             files={workspace?.Files || []}
           />
         </div>
         {/* Display currently selected PDF  */}
-        <div className="w-full sm:w-32 px-2 grid grid-cols-3 sm:flex sm:flex-col items-center justify-center gap-10  bg-white ">
+        <div className="w-full md:w-32 px-2  flex flex-row md:flex-col items-center md:justify-center gap-10  bg-white overflow-x-auto ">
           <Suspense
             fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
           >

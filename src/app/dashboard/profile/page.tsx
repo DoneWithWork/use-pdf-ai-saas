@@ -10,7 +10,7 @@ export default async function ProfilePage() {
   const user = await getUser();
   return (
     <div className="wrapper">
-      <h1 className="title">My Account</h1>
+      <h1 className="title mt-4">My Account</h1>
       <div className="mt-4 md:mt-10">
         <p className="important_paragraph_text">Personal Details</p>
         <Separator />

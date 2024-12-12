@@ -39,6 +39,7 @@ export default function NewFolder() {
   } = trpc.createFolder.useMutation({
     onSuccess: () => {
       console.log("Success");
+      utils.getUserDocumentPaginated.invalidate();
       return SuccessToast("Folder created successfully");
     },
     onError: (error) => {
@@ -64,7 +65,6 @@ export default function NewFolder() {
     // ✅ This will be type-safe and validated.
     createFolder({ name: values.name });
 
-    utils.getUserDocumentPaginated.invalidate();
     console.log(values);
   }
   return (
