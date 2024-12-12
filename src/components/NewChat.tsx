@@ -1,7 +1,6 @@
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Button } from "@mantine/core";
+import { Drawer } from "@mantine/core";
 import { FileText, Loader2, Plus } from "lucide-react";
-import UploadDocumentButton from "./UploadDocumentButton";
 import { trpc } from "@/app/_trpc/client";
 import { cn, shortenName } from "@/lib/utils";
 import byteSize from "byte-size";
@@ -10,6 +9,8 @@ import { File } from "@prisma/client";
 import { ErrorToast } from "@/components/Toasts";
 import { useRouter } from "next/navigation";
 import { SuccessToast } from "@/components/Toasts";
+import { Button } from "./ui/button";
+import UploadDocuments from "./UploadDocuments";
 export default function NewChat() {
   const [opened, { open, close }] = useDisclosure(false);
   const router = useRouter();
@@ -67,7 +68,7 @@ export default function NewChat() {
             />
           </div>
           <Drawer.Body>
-            <UploadDocumentButton />
+            <UploadDocuments />
             <div className="w-full px-2 grid grid-cols-3  gap-4 mt-4 rounded-md ">
               {isLoading && <Loader2 className="animate-spin" size={25} />}
               {files?.map((file, index) => (

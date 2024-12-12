@@ -1,7 +1,6 @@
 import LogoutButton from "@/components/LogoutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { shortenName } from "@/lib/utils";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import Image from "next/image";
 import React from "react";
@@ -31,8 +30,8 @@ export default async function ProfilePage() {
             </Avatar>
           )}
           <div>
-            <p className="important_text ">{user.given_name}</p>
-            <p className="">{user.email}</p>
+            <p className="important_text ">{user?.given_name}</p>
+            <p className="">{user?.email}</p>
           </div>
         </div>
       </div>

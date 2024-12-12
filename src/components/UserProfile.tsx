@@ -35,7 +35,7 @@ export default async function UserProfile() {
               </Avatar>
             )}
             <p className="important_text hidden sm:block">
-              {shortenName(user.given_name || "", 15)}
+              {shortenName(user?.given_name || "", 15)}
             </p>
           </div>
           <ChevronsUpDown size={20} className="w-5 h-5" />

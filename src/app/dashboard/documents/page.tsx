@@ -1,7 +1,7 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
 
-import { Ghost, Loader2, Trash } from "lucide-react";
+import { File, Folder, Ghost, Loader2, Trash } from "lucide-react";
 import React from "react";
 import { format } from "date-fns";
 import { File as FileTypes } from "@prisma/client";
@@ -51,9 +51,10 @@ export default function Documents() {
   const searchParams = useSearchParams();
   const page = +(searchParams.get("page") ?? 1);
   const router = useRouter();
-  const {} = trpc.deleteDoc.useMutation({
+  const {} = trpc.deleteDocOrFolder.useMutation({
     onSuccess: () => {
       utils.getUserFiles.invalidate();
+      utils.getUserDocumentPaginated.invalidate();
     },
 
     onMutate: ({ id }) => {
@@ -63,10 +64,17 @@ export default function Documents() {
       setCurrentDeletingFile(null);
     },
   });
-  const { data, isLoading } = trpc.getUserDocumentPaginated.useQuery({
-    page: page < 1 ? 1 : page,
-    totalItems: 5,
-  });
+  const { data, isLoading } = trpc.getUserDocumentPaginated.useQuery(
+    {
+      page: page < 1 ? 1 : page,
+      totalItems: 5,
+    },
+    {
+      retry: 3,
+      retryDelay: 1000,
+      refetchInterval: false,
+    }
+  );
   const documents: FileOrFolder[] =
     data?.files.map((file) => ({
       ...file,
@@ -136,10 +144,10 @@ export default function Documents() {
               </div>
             )}
           </TableCaption>
-          <TableHeader>
-            <TableRow className="bg-gray-200 hover:bg-gray-300">
+          <TableHeader className="">
+            <TableRow className="bg-blue-200  rounded-t-xl hover:bg-blue-100">
               <TableHead colSpan={4} className="w-[100px]">
-                File Name
+                File/Folder Names
               </TableHead>
               <TableHead>Size</TableHead>
               <TableHead>Date Created</TableHead>
@@ -149,17 +157,25 @@ export default function Documents() {
 
           <TableBody>
             {documents.map((doc: FileOrFolder, index: number) => (
-              <TableRow
-                key={index}
-                className={`${"size" in doc ? "" : "cursor-pointer"}`}
-                onClick={() => {
-                  if (!("size" in doc)) {
-                    router.push("/dashboard/documents/folder/" + doc.id);
-                  }
-                }}
-              >
+              <TableRow key={index}>
                 <TableCell colSpan={4} className="font-medium">
-                  {doc.name}
+                  <div
+                    className={`${
+                      "size" in doc ? "" : "cursor-pointer hover:underline "
+                    } flex flex-row items-center gap-2 `}
+                    onClick={() => {
+                      if (!("size" in doc)) {
+                        router.push("/dashboard/documents/folder/" + doc.id);
+                      }
+                    }}
+                  >
+                    {"size" in doc ? (
+                      <File className="w-5 h-5" />
+                    ) : (
+                      "Files" in doc && <Folder className="w-5 h-5" />
+                    )}
+                    {doc.name}
+                  </div>
                 </TableCell>
                 <TableCell>
                   {"size" in doc ? (

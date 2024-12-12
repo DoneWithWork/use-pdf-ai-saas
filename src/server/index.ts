@@ -162,7 +162,17 @@ export const appRouter = router({
           },
         }),
       ]);
-      const dataToSort = [...files, ...folders];
+      const fileIdsInFolders = new Set(
+        folders.flatMap((folder) => folder.Files.map((file) => file.id))
+      );
+
+      // Filter files to include only those not in folders
+      const filesNotInFolders = files.filter(
+        (file) => !fileIdsInFolders.has(file.id)
+      );
+
+      // Combine files not in folders and folders
+      const dataToSort = [...filesNotInFolders, ...folders];
 
       const totalPages = Math.ceil(dataToSort.length / input.totalItems);
 
@@ -190,7 +200,61 @@ export const appRouter = router({
       },
     });
   }),
-  deleteDoc: privateProcedure
+  queryDeleteDoc: privateProcedure
+    .input(z.object({ id: z.string(), isFolder: z.boolean() }))
+    .query(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      if (input.isFolder) {
+        const folder = await db.folders.findFirst({
+          where: {
+            userId,
+            id: input.id,
+          },
+          select: {
+            Files: {
+              select: {
+                Workspaces: {
+                  select: {
+                    id: true,
+                  },
+                },
+                name: true,
+              },
+            },
+          },
+        });
+        if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
+
+        const hasWorkspaceLinkedDocuments = folder.Files.some(
+          (file) => file.Workspaces.length > 0
+        );
+        if (hasWorkspaceLinkedDocuments)
+          return {
+            canDelete: false,
+          };
+      } else {
+        const file = await db.file.findFirst({
+          where: {
+            userId,
+            id: input.id,
+          },
+          select: {
+            Workspaces: {
+              select: {
+                id: true,
+              },
+            },
+            name: true,
+          },
+        });
+        if (!file) throw new TRPCError({ code: "NOT_FOUND" });
+
+        if (file.Workspaces.length > 0) return { canDelete: false };
+        return { canDelete: true };
+      }
+    }),
+
+  deleteDocOrFolder: privateProcedure
     .input(z.object({ id: z.string(), isFolder: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
@@ -200,6 +264,9 @@ export const appRouter = router({
             where: {
               userId,
               id: input.id,
+            },
+            select: {
+              Files: true,
             },
           });
         } else {
@@ -283,7 +350,7 @@ export const appRouter = router({
       const workspace = await db.workspace.create({
         data: {
           userId,
-          File: {
+          Files: {
             connect: ids.map((id) => ({ id })), //connect all the files
           },
         },
@@ -325,7 +392,12 @@ export const appRouter = router({
           id: {
             in: ids,
           },
-          workspaceId: input.workspaceId,
+          Workspaces: {
+            //the id must match the workspace id
+            some: {
+              id: input.workspaceId,
+            },
+          },
           vectorStatus: "PENDING",
         },
       });
@@ -356,7 +428,11 @@ export const appRouter = router({
             await db.file.update({
               data: { vectorStatus: "SUCCESS" },
               where: {
-                workspaceId: input.workspaceId,
+                Workspaces: {
+                  some: {
+                    id: input.workspaceId,
+                  },
+                },
                 userId,
                 id: file.id,
               },
@@ -383,13 +459,13 @@ export const appRouter = router({
           id: input.workspaceId,
         },
         select: {
-          File: true,
+          Files: true,
         },
       });
       if (!workspace) return { status: "PENDING" as const };
 
       //some --> if any of the files are not vectorised or uploaded exit early and return true
-      const hasIncompleteFiles = workspace.File.some(
+      const hasIncompleteFiles = workspace.Files.some(
         (file) =>
           file.uploadStatus !== "SUCCESS" || file.vectorStatus !== "SUCCESS"
       );
@@ -459,7 +535,7 @@ export const appRouter = router({
       const { userId } = ctx;
       const workspace = await db.workspace.create({
         data: {
-          File: {
+          Files: {
             connect: { id: input.fileId },
           },
           userId,
@@ -478,7 +554,7 @@ export const appRouter = router({
         },
         select: {
           name: true,
-          File: true,
+          Files: true,
         },
       });
     }),

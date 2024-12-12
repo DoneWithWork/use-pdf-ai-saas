@@ -23,7 +23,7 @@ export const POST = async (req: NextRequest) => {
       userId,
     },
     select: {
-      File: {
+      Files: {
         select: {
           id: true,
         },
@@ -41,7 +41,7 @@ export const POST = async (req: NextRequest) => {
       workspaceId,
     },
   });
-  const fileIds = workspace.File.map((file) => file.id);
+  const fileIds = workspace.Files.map((file) => file.id);
   // #1 Vectorise the embeddings
   const embeddings = new OpenAIEmbeddings({
     openAIApiKey: process.env.OPENAI_API_KEY!,

@@ -1,7 +1,7 @@
 import { CloudLightningIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import Logo from "../public/logo.svg";
+import Logo from "../public/logo.png";
 import Image from "next/image";
 import { trpc } from "@/app/_trpc/client";
 import { ErrorToast } from "./Toasts";

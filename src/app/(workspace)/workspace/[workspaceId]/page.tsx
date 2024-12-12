@@ -64,11 +64,11 @@ export default function WorkSpace({
   useEffect(() => {
     if (workspace && workspaceId) {
       // Set the default selected file
-      setCurSelectedFile(workspace.File?.[0]?.id || "");
+      setCurSelectedFile(workspace.Files?.[0]?.id || "");
 
       // Begin vectorising the documents/checking
       vectoriseDocs({
-        ids: workspace.File.map((file) => file.id) || [],
+        ids: workspace.Files.map((file) => file.id) || [],
         workspaceId: workspaceId,
       });
     }
@@ -98,7 +98,7 @@ export default function WorkSpace({
 
   //helper function to return file URL
   const returnFileUrl = (fileId: string) => {
-    const file = workspace?.File.find((file) => file.id === fileId);
+    const file = workspace?.Files.find((file) => file.id === fileId);
     return file?.url;
   };
   return (
@@ -128,7 +128,7 @@ export default function WorkSpace({
         <div className="shrink-0 flex-[0.75] border-t border-gray-200 lg:w-96 lg:border-l lg:border-t-0">
           <ChatWrapper
             workspaceId={workspaceId}
-            files={workspace?.File || []}
+            files={workspace?.Files || []}
           />
         </div>
         {/* Display currently selected PDF  */}
@@ -136,7 +136,7 @@ export default function WorkSpace({
           <Suspense
             fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
           >
-            {workspace?.File.map((file, index) => (
+            {workspace?.Files.map((file, index) => (
               <div
                 key={index}
                 className="flex flex-col items-center justify-center "

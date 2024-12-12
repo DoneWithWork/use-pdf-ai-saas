@@ -2,7 +2,7 @@ import { File, WorkflowIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import UserProfile from "./UserProfile";
-import Logo from "@/public/logo.svg";
+import Logo from "@/public/logo.png";
 import Image from "next/image";
 const DashboardNav = async () => {
   return (
@@ -13,7 +13,6 @@ const DashboardNav = async () => {
           <div>
             <div className="flex flex-col items-center  mt-5">
               <Link href={"/"}>
-                {" "}
                 <Image src={Logo} alt="Logo" width={150} height={100}></Image>
               </Link>
             </div>

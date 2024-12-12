@@ -45,6 +45,7 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
       setIsUploading(false);
       close();
       utils.getSingleFolder.invalidate();
+      utils.getUserFiles.invalidate();
       console.log(res);
       utils.getUserDocumentPaginated.invalidate();
       return SuccessToast("Files uploaded successfully");

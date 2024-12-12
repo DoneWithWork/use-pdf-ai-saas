@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Folder, Plus } from "lucide-react";
+import { Folder } from "lucide-react";
 import {
   Sheet,
   SheetContent,

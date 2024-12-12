@@ -2,14 +2,18 @@
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { RegisterLink } from "@kinde-oss/kinde-auth-nextjs/components";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
+
 import { Menu } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
-import Logo from "@/public/logo.svg";
+import Logo from "@/public/logo.png";
+
 import { useState } from "react";
 export default function LandingNav() {
   const [isHidden, setIsHidden] = useState(false);
+  const { isAuthenticated } = useKindeBrowserClient();
   const { scrollY } = useScroll();
   useMotionValueEvent(scrollY, "change", (current) => {
     if (current > 130) {
@@ -43,17 +47,13 @@ export default function LandingNav() {
       initial={{ y: -100 }}
       className={cn(
         isHidden ? "rounded-xl shadow-md bg-gray-100" : "w-full bg-transparent",
-        "z-10 flex flex-row items-center justify-between px-3 sm:px-5 md:px-10 rounded-xl"
+        "z-10 flex flex-row items-center justify-between px-3 sm:px-5 md:px-10 rounded-xl py-3"
       )}
     >
       <div>
-        <Image
-          src={Logo}
-          alt="logo"
-          width={160}
-          height={100}
-          className="aspect-video"
-        />
+        <Link href={"/"}>
+          <Image src={Logo} alt="logo" width={160} height={100} />
+        </Link>
       </div>
       <div className="space-x-10 hidden sm:block">
         <Link href={"/pricing"} className="font-semibold hover:underline">
@@ -62,9 +62,15 @@ export default function LandingNav() {
         <Link href={"/use-cases"} className="font-semibold hover:underline">
           Use Cases
         </Link>
-        <Button asChild size={"sm"}>
-          <RegisterLink>Get Started</RegisterLink>
-        </Button>
+        {isAuthenticated ? (
+          <Link href={"/dashboard/workspaces"}>
+            <Button>Dashboard</Button>
+          </Link>
+        ) : (
+          <Button asChild size={"sm"}>
+            <RegisterLink>Get Started</RegisterLink>
+          </Button>
+        )}
       </div>
       <div className="flex flex-row items-center gap-4 sm:hidden">
         <Button asChild size={"sm"}>
