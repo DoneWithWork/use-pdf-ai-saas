@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import { Plus } from "lucide-react";
+import { Folder, Plus } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -71,7 +71,7 @@ export default function NewFolder() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant={"default"}>
-          <Plus size={20} className="w-6 h-6 mr-1" />
+          <Folder size={20} className="w-6 h-6 mr-2" />
           <span>New Folder</span>
         </Button>
       </SheetTrigger>

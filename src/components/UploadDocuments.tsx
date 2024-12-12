@@ -1,8 +1,9 @@
 "use client";
 import { useDisclosure } from "@mantine/hooks";
-import { Drawer, Button } from "@mantine/core";
+import { Drawer } from "@mantine/core";
 import { Plus } from "lucide-react";
 import { OurUploadDropzone } from "./Dropzone";
+import { Button } from "./ui/button";
 export default function UploadDocuments() {
   const [opened, { open, close }] = useDisclosure(false);
   return (
@@ -16,7 +17,9 @@ export default function UploadDocuments() {
         <Drawer.Overlay />
         <Drawer.Content>
           <Drawer.Header>
-            <Drawer.Title>Upload Documents</Drawer.Title>
+            <Drawer.Title style={{ fontWeight: "600" }}>
+              Upload Documents
+            </Drawer.Title>
             <Drawer.CloseButton />
           </Drawer.Header>
           <Drawer.Body>
@@ -25,7 +28,7 @@ export default function UploadDocuments() {
         </Drawer.Content>
       </Drawer.Root>
 
-      <Button onClick={open} size="md">
+      <Button onClick={open}>
         <div className="flex flex-row gap-1 items-center">
           <Plus size={25} />
           <span>Upload</span>

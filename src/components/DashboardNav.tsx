@@ -8,8 +8,8 @@ const DashboardNav = async () => {
   return (
     <div>
       <nav className="block sm:hidden">{/* <h1>Hi</h1> */}</nav>
-      <nav className="bg-white lg:w-64 h-screen hidden sm:block">
-        <div className="px-5 py-3 flex flex-col h-screen justify-between">
+      <nav className="bg-blue-200 lg:w-64 h-screen hidden sm:block">
+        <div className="px-2 py-3 flex flex-col h-screen justify-between">
           <div>
             <div className="flex flex-col items-center  mt-5">
               <Link href={"/"}>
@@ -36,9 +36,8 @@ const DashboardNav = async () => {
               <p className="text-xl hidden sm:block">Settings</p>
             </Link> */}
           </div>
-          <div>
-            <UserProfile />
-          </div>
+
+          <UserProfile />
         </div>
       </nav>
     </div>

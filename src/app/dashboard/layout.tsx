@@ -10,7 +10,7 @@ export default function DashboardLayout({
   return (
     <div className="w-full flex flex-row h-screen overflow-hidden">
       <DashboardNav />
-      <div className="flex-1">
+      <div className="flex-1 bg-white">
         <Suspense>{children}</Suspense>
       </div>
     </div>

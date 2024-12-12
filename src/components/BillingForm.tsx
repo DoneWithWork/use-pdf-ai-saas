@@ -40,7 +40,7 @@ const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
   return (
     <div className="max-w-5xl">
       <form
-        className="mt-12"
+        className="mt-3"
         onSubmit={(e) => {
           e.preventDefault();
           createStripeSession();
@@ -51,7 +51,7 @@ const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
             <CardTitle>Subscription Plan</CardTitle>
             <CardDescription>
               You are currently on the
-              <strong>{subscriptionPlan.name}</strong> plan.
+              <strong> {subscriptionPlan.name}</strong> plan.
             </CardDescription>
           </CardHeader>
 
@@ -66,11 +66,16 @@ const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
             </Button>
 
             {subscriptionPlan.isSubscribed ? (
-              <p className="rounded-full text-xs font-medium">
+              <p className="rounded-full text-sm font-medium">
                 {subscriptionPlan.isCanceled
                   ? "Your plan will be canceled on "
-                  : "Your plan renews on"}
-                {format(subscriptionPlan.stripeCurrentPeriodEnd!, "dd.MM.yyyy")}
+                  : "Your plan renews on "}
+                <span className="font-semibold">
+                  {format(
+                    subscriptionPlan.stripeCurrentPeriodEnd!,
+                    "dd.MM.yyyy"
+                  )}
+                </span>
                 .
               </p>
             ) : null}
