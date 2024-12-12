@@ -6,11 +6,10 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
 import { Menu } from "lucide-react";
 import { motion, useMotionValueEvent, useScroll } from "motion/react";
-import Image from "next/image";
 import Link from "next/link";
-import Logo from "@/public/logo.png";
 
 import { useState } from "react";
+import Logo from "./Logo";
 export default function LandingNav() {
   const [isHidden, setIsHidden] = useState(false);
   const { isAuthenticated } = useKindeBrowserClient();
@@ -51,9 +50,7 @@ export default function LandingNav() {
       )}
     >
       <div>
-        <Link href={"/"}>
-          <Image src={Logo} alt="logo" width={160} height={100} />
-        </Link>
+        <Logo />
       </div>
       <div className="space-x-10 hidden sm:block">
         <Link href={"/pricing"} className="font-semibold hover:underline">
