@@ -202,8 +202,9 @@ export const appRouter = router({
   }),
   queryDeleteDoc: privateProcedure
     .input(z.object({ id: z.string(), isFolder: z.boolean() }))
-    .query(async ({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
+
       if (input.isFolder) {
         const folder = await db.folders.findFirst({
           where: {
@@ -224,7 +225,7 @@ export const appRouter = router({
           },
         });
         if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
-
+        //return true if the folder has any linked documents
         const hasWorkspaceLinkedDocuments = folder.Files.some(
           (file) => file.Workspaces.length > 0
         );
@@ -254,13 +255,14 @@ export const appRouter = router({
       }
     }),
 
-  deleteDocOrFolder: privateProcedure
+  deleteSingleFileOrFolder: privateProcedure
     .input(z.object({ id: z.string(), isFolder: z.boolean() }))
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
       try {
         if (input.isFolder) {
-          await db.folders.delete({
+          //check if folder has any linked documents just in case
+          const folder = await db.folders.findFirst({
             where: {
               userId,
               id: input.id,
@@ -269,6 +271,17 @@ export const appRouter = router({
               Files: true,
             },
           });
+          if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
+          if (folder.Files.length > 0) {
+            throw new TRPCError({ code: "BAD_REQUEST" });
+          }
+          await db.folders.delete({
+            where: {
+              userId,
+              id: input.id,
+            },
+          });
+          return { success: true };
         } else {
           const file = await db.file.delete({
             where: {
@@ -276,19 +289,19 @@ export const appRouter = router({
               id: input.id,
             },
           });
+          if (!file) throw new TRPCError({ code: "NOT_FOUND" });
           await utapi.deleteFiles(file.key);
           const pinecone = new PineconeClient();
           pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
             ids: [file.id],
           });
+          return { success: true };
         }
       } catch {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
 
       //delete embeddings
-
-      return { success: true };
     }),
   //need to get accoding to chat history
   getWorkspaceChatMessages: privateProcedure

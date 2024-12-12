@@ -42,26 +42,36 @@ import { useRouter, useSearchParams } from "next/navigation";
 import UploadDocuments from "@/components/UploadDocuments";
 import NewFolder from "@/components/NewFolder";
 import { FileOrFolder } from "@/types/message";
+import Loader from "@/components/Loader";
+import { ErrorToast, SuccessToast } from "@/components/Toasts";
 
 export default function Documents() {
-  const [currentDeletingFile, setCurrentDeletingFile] = React.useState<
-    string | null
-  >(null);
   const utils = trpc.useUtils();
   const searchParams = useSearchParams();
   const page = +(searchParams.get("page") ?? 1);
   const router = useRouter();
-  const {} = trpc.deleteDocOrFolder.useMutation({
-    onSuccess: () => {
-      utils.getUserFiles.invalidate();
-      utils.getUserDocumentPaginated.invalidate();
-    },
-
-    onMutate: ({ id }) => {
-      setCurrentDeletingFile(id);
-    },
-    onSettled() {
-      setCurrentDeletingFile(null);
+  const { mutate: deleteSingleDoc, isPending: isDeletingSingleDoc } =
+    trpc.deleteSingleFileOrFolder.useMutation({
+      retry: 3,
+      retryDelay: 1000,
+      onSuccess: () => {
+        SuccessToast("Successfully deleted file/folder");
+        utils.getUserDocumentPaginated.invalidate();
+        utils.getUserFiles.invalidate();
+      },
+      onError: (error) => {
+        ErrorToast(error.message);
+      },
+    });
+  const {
+    mutate: checkDeletestatus,
+    isPending: isCheckingDeleteStatus,
+    data: deleteStatus,
+  } = trpc.queryDeleteDoc.useMutation({
+    retry: 3,
+    retryDelay: 1000,
+    onError: (error) => {
+      ErrorToast(error.message);
     },
   });
   const { data, isLoading } = trpc.getUserDocumentPaginated.useQuery(
@@ -193,12 +203,17 @@ export default function Documents() {
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
                       <Button
-                        // onClick={() => deleteFile({ id: doc.id })}
+                        onClick={() => {
+                          checkDeletestatus({
+                            id: doc.id,
+                            isFolder: !("size" in doc),
+                          });
+                        }}
                         size={"sm"}
                         variant={"destructive"}
                         className=""
                       >
-                        {currentDeletingFile === doc.id ? (
+                        {isDeletingSingleDoc ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <Trash className="w-4 h-4" />
@@ -213,11 +228,42 @@ export default function Documents() {
                         <AlertDialogDescription>
                           This action cannot be undone. This will permanently
                           delete your {"size" in doc ? "file" : "folder"}
+                          <span className="text-red-600  mt-4 text-lg font-semibold">
+                            {" "}
+                            {!isCheckingDeleteStatus ? (
+                              deleteStatus?.canDelete ? (
+                                "You can delete"
+                              ) : (
+                                `You can't delete this ${
+                                  "size" in doc ? "file" : "folder"
+                                }. ${
+                                  "size" in doc
+                                    ? "It has a workspace"
+                                    : "It has files"
+                                }`
+                              )
+                            ) : (
+                              <Loader message="Checking delete status" />
+                            )}
+                          </span>
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction>Continue</AlertDialogAction>
+                        <AlertDialogAction
+                          className="bg-red-500 hover:bg-red-600"
+                          disabled={
+                            isCheckingDeleteStatus || !deleteStatus?.canDelete
+                          }
+                          onClick={() => {
+                            deleteSingleDoc({
+                              id: doc.id,
+                              isFolder: !("size" in doc),
+                            });
+                          }}
+                        >
+                          Delete
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
