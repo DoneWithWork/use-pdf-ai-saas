@@ -1,14 +1,26 @@
 "use client";
-import * as React from "react";
+import { Button } from "@/components/ui/button";
+
 import {
   ColumnDef,
+  ColumnFiltersState,
   SortingState,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import {
   Table,
   TableBody,
@@ -17,18 +29,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  initialPageSize?: number; // Add this line
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  initialPageSize = 5, // Add this line
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const table = useReactTable({
     data,
     columns,
@@ -36,18 +51,32 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    onColumnFiltersChange: setColumnFilters,
+    getFilteredRowModel: getFilteredRowModel(),
+    initialState: { pagination: { pageSize: initialPageSize } }, // Add this line
     state: {
       sorting,
+      columnFilters,
     },
   });
 
   return (
     <div>
+      <div className="flex items-center py-4">
+        <Input
+          placeholder="Filter names..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          onChange={(event) =>
+            table.getColumn("name")?.setFilterValue(event.target.value)
+          }
+          className="max-w-sm"
+        />
+      </div>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="text-blue-500">
                 {headerGroup.headers.map((header) => {
                   return (
                     <TableHead key={header.id}>
@@ -93,7 +122,24 @@ export function DataTable<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      {/* <div className="flex items-center justify-end space-x-2 py-4">
+      <div className="flex items-center justify-end space-x-2 py-4">
+        <Select
+          value={`${table.getState().pagination.pageSize}`}
+          onValueChange={(value) => {
+            table.setPageSize(Number(value));
+          }}
+        >
+          <SelectTrigger className="h-8 w-[70px]">
+            <SelectValue placeholder={table.getState().pagination.pageSize} />
+          </SelectTrigger>
+          <SelectContent side="top">
+            {[5, 10].map((pageSize) => (
+              <SelectItem key={pageSize} value={`${pageSize}`}>
+                {pageSize}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
         <Button
           variant="outline"
           size="sm"
@@ -110,7 +156,7 @@ export function DataTable<TData, TValue>({
         >
           Next
         </Button>
-      </div> */}
+      </div>
     </div>
   );
 }

@@ -20,3 +20,26 @@ export type FileType = {
   name: string;
 };
 export type FileOrFolder = File | Folders;
+
+export enum DocumentType {
+  PDF = "PDF",
+  FOLDER = "FOLDER",
+}
+
+type PDFDocument = {
+  id: string;
+  name: string;
+  size: number;
+  documentType: DocumentType.PDF;
+  createdAt: Date;
+};
+
+type FolderDocument = {
+  id: string;
+  name: string;
+  number_of_files: number;
+  documentType: DocumentType.FOLDER;
+  createdAt: Date;
+};
+
+export type DocumentTypes = PDFDocument | FolderDocument;

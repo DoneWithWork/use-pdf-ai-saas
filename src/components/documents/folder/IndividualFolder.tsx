@@ -1,5 +1,5 @@
 "use client";
-import { ArrowLeftIcon, Folder } from "lucide-react";
+import { ArrowLeftIcon, File, Folder } from "lucide-react";
 import Link from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import UploadDocuments from "../UploadDocuments";
@@ -46,7 +46,8 @@ export default function IndividualFolder({ folderId }: { folderId: string }) {
       <div className="mt-4">
         {folder && folder.Files.length > 0 ? (
           folder.Files.map((file, index) => (
-            <div key={index}>
+            <div key={index} className="flex flex-row items-center gap-2">
+              <File size={25} />
               <p>{file.name}</p>
             </div>
           ))

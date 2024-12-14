@@ -12,7 +12,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
-import { FileOrFolder } from "@/types/types";
+import { DocumentType, DocumentTypes } from "@/types/types";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 const utapi = new UTApi();
@@ -127,70 +127,69 @@ export const appRouter = router({
       return folder;
     }),
   // Returns a User's documents, paginated
-  getUserDocumentPaginated: privateProcedure
-    .input(
-      z.object({
-        page: z.number().min(1),
-        totalItems: z.number().min(1),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const { userId } = ctx;
-      const page = input.page ?? 1;
-      const offset = (page - 1) * input.totalItems;
-      const [files, folders] = await Promise.all([
-        db.file.findMany({
-          where: {
-            userId,
-          },
-        }),
-        db.folders.findMany({
-          where: {
-            userId,
-          },
-          select: {
-            name: true,
-            id: true,
-            userId: true,
-            createdAt: true,
-            updatedAt: true,
-            Files: {
-              select: {
-                id: true,
-              },
+  getUserDocumentPaginated: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+
+    const [files, folders] = await Promise.all([
+      db.file.findMany({
+        where: {
+          userId,
+        },
+      }),
+      db.folders.findMany({
+        where: {
+          userId,
+        },
+        select: {
+          name: true,
+          id: true,
+          userId: true,
+          createdAt: true,
+          updatedAt: true,
+          Files: {
+            select: {
+              id: true,
             },
           },
-        }),
-      ]);
-      const fileIdsInFolders = new Set(
-        folders.flatMap((folder) => folder.Files.map((file) => file.id))
+        },
+      }),
+    ]);
+    const fileIdsInFolders = new Set(
+      folders.flatMap((folder) => folder.Files.map((file) => file.id))
+    );
+
+    // Filter files to include only those not in folders
+    const filesNotInFolders = files.filter(
+      (file) => !fileIdsInFolders.has(file.id)
+    );
+
+    // Combine files not in folders and folders
+    const dataToSort = [...filesNotInFolders, ...folders];
+
+    const sortedData = dataToSort.sort((itemA, itemB) => {
+      return (
+        new Date(itemB.createdAt).getTime() -
+        new Date(itemA.createdAt).getTime()
       );
-
-      // Filter files to include only those not in folders
-      const filesNotInFolders = files.filter(
-        (file) => !fileIdsInFolders.has(file.id)
-      );
-
-      // Combine files not in folders and folders
-      const dataToSort = [...filesNotInFolders, ...folders];
-
-      const totalPages = Math.ceil(dataToSort.length / input.totalItems);
-
-      const sortedData = dataToSort.sort((itemA, itemB) => {
-        return (
-          new Date(itemB.createdAt).getTime() -
-          new Date(itemA.createdAt).getTime()
-        );
-      });
-      const paginatedData: FileOrFolder[] = sortedData.slice(
-        offset,
-        offset + input.totalItems
-      );
-      return {
-        files: paginatedData,
-        totalPages,
-      };
-    }),
+    });
+    const paginatedData: DocumentTypes[] = sortedData.map((item) => {
+      if ("Files" in item) {
+        return {
+          ...item,
+          documentType: DocumentType.FOLDER,
+          number_of_files: item.Files.length,
+        };
+      } else {
+        return {
+          ...item,
+          documentType: DocumentType.PDF,
+        };
+      }
+    });
+    return {
+      files: paginatedData,
+    };
+  }),
   getUserFiles: privateProcedure.query(async ({ ctx }) => {
     // Retrieve users from a datasource, this is an imaginary database
     const { userId } = ctx;
@@ -224,15 +223,16 @@ export const appRouter = router({
             },
           },
         });
+        console.log(folder);
         if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
         //return true if the folder has any linked documents
-        const hasWorkspaceLinkedDocuments = folder.Files.some(
-          (file) => file.Workspaces.length > 0
-        );
-        if (hasWorkspaceLinkedDocuments)
+        const hasWorkspaceLinkedDocuments = folder.Files.length > 0;
+        if (hasWorkspaceLinkedDocuments) return { canDelete: false };
+        else {
           return {
-            canDelete: false,
+            canDelete: true,
           };
+        }
       } else {
         const file = await db.file.findFirst({
           where: {
@@ -262,6 +262,7 @@ export const appRouter = router({
       try {
         if (input.isFolder) {
           //check if folder has any linked documents just in case
+
           const folder = await db.folders.findFirst({
             where: {
               userId,
@@ -271,6 +272,7 @@ export const appRouter = router({
               Files: true,
             },
           });
+          console.log(folder);
           if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
           if (folder.Files.length > 0) {
             throw new TRPCError({ code: "BAD_REQUEST" });
