@@ -9,8 +9,8 @@ export default function Workspaces() {
   const { data: workspaces, isLoading } = trpc.getWorkspaces.useQuery(
     undefined,
     {
-      retry: 3,
       retryDelay: 1000,
+      refetchInterval: false,
     }
   );
 
@@ -34,7 +34,9 @@ export default function Workspaces() {
             {workspace.name}
           </Link>
         ))}
-        {isLoading && <Skeleton height={100} className="my-2" count={3} />}
+        {isLoading ? (
+          <Skeleton height={100} className="my-2" count={3} />
+        ) : null}
       </div>
     </div>
   );

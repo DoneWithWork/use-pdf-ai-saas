@@ -1,8 +1,8 @@
-import React, { Suspense } from "react";
+import React from "react";
 import DashboardNav from "../../components/navbars/DashboardNav";
 
 import MobileSideBar from "@/components/navbars/MobileSideBar";
-import Loader from "@/components/mis/Loader";
+
 import UserProfile from "@/components/auth/UserProfile";
 
 export default function DashboardLayout({
@@ -19,11 +19,7 @@ export default function DashboardLayout({
       <MobileSideBar>
         <UserProfile />
       </MobileSideBar>
-      <div className=" w-full bg-white overflow-x-auto">
-        <Suspense fallback={<Loader message="Loading..." />}>
-          {children}
-        </Suspense>
-      </div>
+      <div className=" w-full bg-white overflow-x-auto">{children}</div>
     </div>
   );
 }
