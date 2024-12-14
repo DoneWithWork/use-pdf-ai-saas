@@ -5,11 +5,11 @@ import { Progress } from "@/components/ui/progress";
 import { Cloud, File, MessageSquarePlus } from "lucide-react";
 import React, { useState } from "react";
 import Dropzone from "react-dropzone";
-import { useUploadThing } from "./uploadthing";
-import { useToast } from "@/hooks/use-toast";
-import { trpc } from "../app/_trpc/client";
+import { useUploadThing } from "../uploadthing";
+import { trpc } from "../../app/_trpc/client";
 
 import { DialogTitle } from "@radix-ui/react-dialog";
+import { ErrorToast } from "../mis/Toasts";
 
 export default function UploadButton({}) {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -40,7 +40,6 @@ const UploadDropzone = ({
 }: {
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
-  const { toast } = useToast();
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
   const { startUpload } = useUploadThing("pdfUploader");
@@ -82,20 +81,12 @@ const UploadDropzone = ({
         const res = await startUpload(acceptedFiles);
 
         if (!res) {
-          toast({
-            title: "Error",
-            description: "Error uploading files",
-            variant: "destructive",
-          });
+          ErrorToast("Error uploading files");
         }
         const fileResponse = res ? res[0] : null;
         const key = fileResponse?.key;
         if (!key) {
-          toast({
-            title: "Error",
-            description: "Error uploading files",
-            variant: "destructive",
-          });
+          ErrorToast("Error uploading files");
         }
 
         //check if its in the db
@@ -106,11 +97,7 @@ const UploadDropzone = ({
         if (key) {
           startPolling({ key });
         } else {
-          toast({
-            title: "Error",
-            description: "Key is undefined",
-            variant: "destructive",
-          });
+          ErrorToast("Error uploading files. Key  is undefined");
         }
       }}
     >

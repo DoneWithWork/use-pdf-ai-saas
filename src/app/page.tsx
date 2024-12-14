@@ -6,8 +6,8 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 import ImagePlaceholder from "../public/imagePlaceholder.png";
-import LandingNav from "../components/LandingNav";
-import Footer from "@/components/Footer";
+import LandingNav from "../components/navbars/LandingNav";
+import Footer from "@/components/mis/Footer";
 
 export default function Home() {
   // const getList = trpc.getList.useQuery();

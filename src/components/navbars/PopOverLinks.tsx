@@ -1,6 +1,6 @@
 import { CreditCard, MoonStar, User2 } from "lucide-react";
 import React from "react";
-import { Separator } from "./ui/separator";
+import { Separator } from "../ui/separator";
 import Link from "next/link";
 
 const Links = [

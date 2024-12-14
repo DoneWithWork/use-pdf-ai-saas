@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Provider from "../components/Providers";
+import Provider from "../components/mis/Providers";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { ourFileRouter } from "./api/uploadthing/core";

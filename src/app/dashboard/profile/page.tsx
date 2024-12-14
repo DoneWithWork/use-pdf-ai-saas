@@ -1,4 +1,4 @@
-import LogoutButton from "@/components/LogoutButton";
+import LogoutButton from "@/components/mis/LogoutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";

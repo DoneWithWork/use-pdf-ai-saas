@@ -1,6 +1,6 @@
 import { LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
 import { LogOut } from "lucide-react";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 export default function LogoutButton() {
   return (
     <Button variant={"destructive"} asChild>

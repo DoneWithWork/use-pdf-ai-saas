@@ -1,10 +1,11 @@
 import React from "react";
-import Messages from "./Messages";
-import ChatInput from "../ChatInput";
+
 import { trpc } from "@/app/_trpc/client";
 import { Loader2 } from "lucide-react";
+import { FileType } from "@/types/types";
 import { ChatContextProvider } from "./ChatContext";
-import { FileType } from "@/types/message";
+import Messages from "./message/Messages";
+import ChatInput from "./ChatInput";
 
 type ChatWrapperProps = {
   workspaceId: string;

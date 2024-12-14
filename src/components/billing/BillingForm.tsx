@@ -14,25 +14,19 @@ import {
 import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
+import { ErrorToast } from "../mis/Toasts";
 
 interface BillingFormProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
 }
 
 const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
-  const { toast } = useToast();
-
   const { mutate: createStripeSession, isPending } =
     trpc.createStripeSession.useMutation({
       onSuccess: ({ url }) => {
         if (url) window.location.href = url;
         if (!url) {
-          toast({
-            title: "There was a problem...",
-            description: "Please try again in a moment",
-            variant: "destructive",
-          });
+          ErrorToast("Error creating stripe session");
         }
       },
     });

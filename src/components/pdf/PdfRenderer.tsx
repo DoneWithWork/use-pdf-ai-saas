@@ -1,7 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/hooks/use-toast";
 import {
   ChevronDown,
   ChevronUp,
@@ -27,13 +26,14 @@ import {
 
 import SimpleBar from "simplebar-react";
 import PdfFullscreen from "./PdfFullscreen";
+import { ErrorToast } from "../mis/Toasts";
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
 
 const PdfRenderer = ({ url }: { url: string }) => {
   const { width, ref } = useResizeDetector();
   const [curPage, setCurPage] = useState(1);
   const [numpages, setNumpages] = useState(0);
-  const { toast } = useToast();
+
   const [scale, setScale] = useState<number>(1);
 
   const [rotation, setRotation] = useState<number>(0);
@@ -156,11 +156,7 @@ const PdfRenderer = ({ url }: { url: string }) => {
                 </div>
               }
               onLoadError={() => {
-                toast({
-                  title: "Error loading PDF",
-                  description: "Please try again",
-                  variant: "destructive",
-                });
+                ErrorToast("Error loading PDF. Please try again");
               }}
               onLoadSuccess={({ numPages }) => {
                 setNumpages(numPages);

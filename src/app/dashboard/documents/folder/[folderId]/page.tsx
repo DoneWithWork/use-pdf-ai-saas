@@ -1,6 +1,6 @@
 import "server-only";
-import IndividualFolder from "@/components/IndividualFolder";
-import Loader from "@/components/Loader";
+import IndividualFolder from "@/components/documents/folder/IndividualFolder";
+import Loader from "@/components/mis/Loader";
 import React, { Suspense } from "react";
 
 export default async function FolderPage({

@@ -1,8 +1,8 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect } from "react";
-import { trpc } from "../app/_trpc/client";
 import { Loader2 } from "lucide-react";
+import { trpc } from "@/app/_trpc/client";
 
 export default function AuthCallBack() {
   const router = useRouter();

@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
-import { ExtendedMessage } from "@/types/message";
-import { Icons } from "../Icons";
+import { ExtendedMessage } from "@/types/types";
 import ReactMarkdown from "react-markdown";
 import { format } from "date-fns";
 import { forwardRef } from "react";
+import { Icons } from "@/components/mis/Icons";
 interface MessageProps {
   message: ExtendedMessage;
   isNextMessageSamePerson: boolean;

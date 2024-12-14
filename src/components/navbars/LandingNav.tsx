@@ -9,7 +9,7 @@ import { motion, useMotionValueEvent, useScroll } from "motion/react";
 import Link from "next/link";
 
 import { useState } from "react";
-import Logo from "./Logo";
+import Logo from "../mis/Logo";
 export default function LandingNav() {
   const [isHidden, setIsHidden] = useState(false);
   const { isAuthenticated } = useKindeBrowserClient();

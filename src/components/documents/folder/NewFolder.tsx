@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/app/_trpc/client";
-import { ErrorToast, SuccessToast } from "./Toasts";
+import { ErrorToast, SuccessToast } from "../../mis/Toasts";
 const newFolderSchema = z.object({
   name: z.string().min(1, {
     message: "Folder name is required",

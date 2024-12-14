@@ -6,11 +6,11 @@ import { cn, shortenName } from "@/lib/utils";
 import byteSize from "byte-size";
 import { useState } from "react";
 import { File } from "@prisma/client";
-import { ErrorToast } from "@/components/Toasts";
+import { ErrorToast } from "@/components/mis/Toasts";
 import { useRouter } from "next/navigation";
-import { SuccessToast } from "@/components/Toasts";
-import { Button } from "./ui/button";
-import UploadDocuments from "./UploadDocuments";
+import { SuccessToast } from "@/components/mis/Toasts";
+import { Button } from "../ui/button";
+import UploadDocuments from "../documents/UploadDocuments";
 export default function NewChat() {
   const [opened, { open, close }] = useDisclosure(false);
   const router = useRouter();

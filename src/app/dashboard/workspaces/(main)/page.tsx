@@ -1,6 +1,6 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
-import NewChat from "@/components/NewChat";
+import NewChat from "@/components/chat/NewChat";
 import Link from "next/link";
 import React from "react";
 import Skeleton from "react-loading-skeleton";

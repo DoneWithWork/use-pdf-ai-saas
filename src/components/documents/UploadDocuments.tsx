@@ -3,7 +3,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { Drawer } from "@mantine/core";
 import { Plus } from "lucide-react";
 import { OurUploadDropzone } from "./Dropzone";
-import { Button } from "./ui/button";
+import { Button } from "../ui/button";
 export default function UploadDocuments() {
   const [opened, { open, close }] = useDisclosure(false);
   return (

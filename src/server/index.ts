@@ -12,7 +12,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
-import { FileOrFolder } from "@/types/message";
+import { FileOrFolder } from "@/types/types";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 const utapi = new UTApi();

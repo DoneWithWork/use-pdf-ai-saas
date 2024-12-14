@@ -2,7 +2,7 @@ import { trpc } from "@/app/_trpc/client";
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { useMutation } from "@tanstack/react-query";
 import React, { createContext, useRef, useState } from "react";
-import { ErrorToast } from "../Toasts";
+import { ErrorToast } from "../mis/Toasts";
 
 //the type
 type StreamResponse = {

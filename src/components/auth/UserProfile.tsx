@@ -9,8 +9,8 @@ import {
 
 import { ChevronsUpDown } from "lucide-react";
 import { shortenName } from "@/lib/utils";
+import PopOverLinks from "../navbars/PopOverLinks";
 
-import PopOverLinks from "./PopOverLinks";
 export default async function UserProfile() {
   const { getUser } = getKindeServerSession();
   const user = await getUser();

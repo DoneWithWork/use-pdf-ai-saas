@@ -1,17 +1,17 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
-import ChatWrapper from "@/components/Chat/ChatWrapper";
+import ChatWrapper from "@/components/chat/ChatWrapper";
 import { cn, shortenName } from "@/lib/utils";
 import { FileText, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 
 import React, { Suspense, useEffect, useState } from "react";
 
-import { ErrorToast } from "@/components/Toasts";
-import WorkspaceNav from "@/components/WorkspaceNav";
-import Loader from "@/components/Loader";
+import { ErrorToast } from "@/components/mis/Toasts";
+import WorkspaceNav from "@/components/chat/WorkspaceNav";
+import Loader from "@/components/mis/Loader";
 const PdfViewerComponent = dynamic(
-  () => import("../../../../components/PdfRenderer"),
+  () => import("../../../../components/pdf/PdfRenderer"),
   {
     ssr: false,
   }

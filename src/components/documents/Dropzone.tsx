@@ -1,13 +1,13 @@
 import { trpc } from "@/app/_trpc/client";
-import { ErrorToast, SuccessToast } from "@/components/Toasts";
+import { ErrorToast, SuccessToast } from "@/components/mis/Toasts";
 import { useUploadThing } from "@/components/uploadthing";
 import { Cloud, FileText } from "lucide-react";
 import { useState } from "react";
 import Dropzone from "react-dropzone";
-import { Progress } from "./ui/progress";
+import { Progress } from "../ui/progress";
 import { shortenFileName } from "@/lib/utils";
 import byteSize from "byte-size";
-import { useFolderId } from "./IndividualFolder";
+import { useFolderId } from "./folder/IndividualFolder";
 export const OurUploadDropzone = ({ close }: { close: () => void }) => {
   const { folderId } = useFolderId();
   const [files, setFiles] = useState<File[]>([]);

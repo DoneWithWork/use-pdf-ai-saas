@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { trpc } from "../app/_trpc/client";
+import { trpc } from "../../app/_trpc/client";
 import { ArrowRight } from "lucide-react";
 export default function UpgradeButton() {
   const { mutate: createStripeSession } = trpc.createStripeSession.useMutation({

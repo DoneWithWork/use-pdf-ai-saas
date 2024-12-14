@@ -1,8 +1,8 @@
 import React, { Suspense } from "react";
-import AuthCallBack from "../../components/AuthCallback";
 import db from "../../../prisma/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { redirect } from "next/navigation";
+import AuthCallBack from "@/components/auth/AuthCallback";
 
 export default async function AuthCallBackpage() {
   const { getUser } = getKindeServerSession();

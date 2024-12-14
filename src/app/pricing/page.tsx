@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 
-import UpgradeButton from "../../components/UpgradeButton";
+import UpgradeButton from "../../components/mis/UpgradeButton";
 
 export default function Pricing() {
   return (

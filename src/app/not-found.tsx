@@ -1,4 +1,4 @@
-import LandingNav from "@/components/LandingNav";
+import LandingNav from "@/components/navbars/LandingNav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Home } from "lucide-react";

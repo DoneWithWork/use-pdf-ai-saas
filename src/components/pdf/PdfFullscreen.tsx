@@ -5,16 +5,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/use-toast";
 import { Expand, Loader2 } from "lucide-react";
 import React, { useState } from "react";
 import { Document, Page } from "react-pdf";
 import { useResizeDetector } from "react-resize-detector";
 import SimpleBar from "simplebar-react";
+import { ErrorToast } from "../mis/Toasts";
 
 export default function PdfFullscreen({ url }: { url: string }) {
   const [isOpen, setIsopen] = useState(false);
-  const { toast } = useToast();
+
   const [numpages, setNumpages] = useState(0);
 
   const { width, ref } = useResizeDetector();
@@ -43,11 +43,7 @@ export default function PdfFullscreen({ url }: { url: string }) {
                 </div>
               }
               onLoadError={() => {
-                toast({
-                  title: "Error loading PDF",
-                  description: "Please try again",
-                  variant: "destructive",
-                });
+                ErrorToast("Error loading PDF");
               }}
               onLoadSuccess={({ numPages }) => {
                 setNumpages(numPages);

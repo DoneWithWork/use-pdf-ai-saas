@@ -2,9 +2,9 @@
 import { ArrowLeftIcon, Folder } from "lucide-react";
 import Link from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
-import UploadDocuments from "./UploadDocuments";
+import UploadDocuments from "../UploadDocuments";
 import { trpc } from "@/app/_trpc/client";
-import Loader from "./Loader";
+import Loader from "../../mis/Loader";
 export const FolderIdContext = createContext<{ folderId: string }>({
   folderId: "",
 });

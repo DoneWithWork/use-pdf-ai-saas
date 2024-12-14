@@ -1,9 +1,10 @@
 import React, { Suspense } from "react";
-import DashboardNav from "../../components/DashboardNav";
+import DashboardNav from "../../components/navbars/DashboardNav";
 
-import MobileSideBar from "@/components/MobileSideBar";
-import Loader from "@/components/Loader";
-import UserProfile from "@/components/UserProfile";
+import MobileSideBar from "@/components/navbars/MobileSideBar";
+import Loader from "@/components/mis/Loader";
+import UserProfile from "@/components/auth/UserProfile";
+
 export default function DashboardLayout({
   children,
 }: {

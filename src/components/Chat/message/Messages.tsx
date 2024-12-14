@@ -5,8 +5,8 @@ import { Loader2, MessageSquare } from "lucide-react";
 import React, { useContext, useEffect, useRef } from "react";
 import Skeleton from "react-loading-skeleton";
 import Message from "./Message";
-import { ChatContext } from "./ChatContext";
 import { useIntersection } from "@mantine/hooks";
+import { ChatContext } from "../ChatContext";
 export default function Messages({ workspaceId }: { workspaceId: string }) {
   const { isLoading: isAiThinking } = useContext(ChatContext);
 

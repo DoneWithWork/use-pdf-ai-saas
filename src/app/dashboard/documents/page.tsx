@@ -39,11 +39,11 @@ import {
 } from "@/components/ui/table";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import UploadDocuments from "@/components/UploadDocuments";
-import NewFolder from "@/components/NewFolder";
-import { FileOrFolder } from "@/types/message";
-import Loader from "@/components/Loader";
-import { ErrorToast, SuccessToast } from "@/components/Toasts";
+import UploadDocuments from "@/components/documents/UploadDocuments";
+import NewFolder from "@/components/documents/folder/NewFolder";
+import { FileOrFolder } from "@/types/types";
+import Loader from "@/components/mis/Loader";
+import { ErrorToast, SuccessToast } from "@/components/mis/Toasts";
 
 export default function Documents() {
   const utils = trpc.useUtils();

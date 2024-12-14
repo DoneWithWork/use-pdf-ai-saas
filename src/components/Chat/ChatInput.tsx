@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send } from "lucide-react";
 import React, { useContext, useRef, useState } from "react";
-import { ChatContext } from "./Chat/ChatContext";
 import { motion } from "motion/react";
 
 import { cn, shortenName } from "@/lib/utils";
-import { FileType } from "@/types/message";
+import { FileType } from "@/types/types";
+import { ChatContext } from "./ChatContext";
 
 interface ChatInputProps {
   isDisabled?: boolean;
