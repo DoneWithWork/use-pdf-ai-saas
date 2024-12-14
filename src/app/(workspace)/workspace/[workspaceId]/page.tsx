@@ -1,6 +1,6 @@
 "use client";
 import { trpc } from "@/app/_trpc/client";
-import ChatWrapper from "@/components/chat/ChatWrapper";
+import ChatWrapper from "@/components/chat_components/ChatWrapper";
 import { cn, shortenName } from "@/lib/utils";
 import { FileText, Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import React, { Suspense, useEffect, useState } from "react";
 
 import { ErrorToast } from "@/components/mis/Toasts";
-import WorkspaceNav from "@/components/chat/WorkspaceNav";
+import WorkspaceNav from "@/components/chat_components/WorkspaceNav";
 import Loader from "@/components/mis/Loader";
 const PdfViewerComponent = dynamic(
   () => import("../../../../components/pdf/PdfRenderer"),
