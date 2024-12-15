@@ -89,7 +89,10 @@ export const columns: ColumnDef<DocumentTypes>[] = [
         return (
           <div className="flex-row-custom ">
             <DeleteDocument id={id} isFolder={isFolder} />
-            <Link href={"/dashboard/documents/folder/" + id}>
+            <Link
+              href={"/dashboard/documents/folder/" + id}
+              aria-label="View Folder"
+            >
               <Button size={"sm"} className="bg-green-400 hover:bg-green-500">
                 <Eye size={20} className="w-4 h-4" />
               </Button>

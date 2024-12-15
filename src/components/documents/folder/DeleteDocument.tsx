@@ -56,6 +56,7 @@ export default function DeleteDocument({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
+          aria-label="Delete"
           onClick={() => {
             checkDeletestatus({
               id,

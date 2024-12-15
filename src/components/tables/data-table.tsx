@@ -146,7 +146,11 @@ export function DataTable<TData, TValue>({
           </SelectTrigger>
           <SelectContent side="top">
             {[5, 10].map((pageSize) => (
-              <SelectItem key={pageSize} value={`${pageSize}`}>
+              <SelectItem
+                key={pageSize}
+                value={`${pageSize}`}
+                aria-label="Page Size"
+              >
                 {pageSize}
               </SelectItem>
             ))}
