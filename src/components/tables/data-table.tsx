@@ -30,16 +30,19 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useState } from "react";
+import Skeleton from "react-loading-skeleton";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   initialPageSize?: number; // Add this line
+  isLoading?: boolean;
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
   initialPageSize = 5, // Add this line
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -62,7 +65,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div>
-      <div className="flex items-center py-4">
+      <div className="flex items-center py-4 ml-2">
         <Input
           placeholder="Filter names..."
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
@@ -109,6 +112,15 @@ export function DataTable<TData, TValue>({
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <Skeleton count={3} height={50} className="w-full " />
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell

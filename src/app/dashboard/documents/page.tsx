@@ -9,7 +9,6 @@ import { DocumentTypes } from "@/types/types";
 
 import { DataTable } from "@/components/tables/data-table";
 import { columns } from "@/components/tables/columns";
-import Loader from "@/components/mis/Loader";
 
 export default function Documents() {
   const { data, isLoading } = trpc.getUserDocumentPaginated.useQuery(
@@ -28,21 +27,15 @@ export default function Documents() {
 
   return (
     <div className="w-full h-full flex flex-col wrapper">
-      {isLoading ? (
-        <Loader message="Loading documents..." />
-      ) : (
-        <>
-          <div className="p-5 flex flex-row items-center justify-between flex-wrap">
-            <h1 className="title">Documents</h1>
+      <div className="p-5 flex flex-row items-center justify-between flex-wrap">
+        <h1 className="title">Documents</h1>
 
-            <div className="flex flex-row gap-3 items-center">
-              <NewFolder />
-              <UploadDocuments />
-            </div>
-          </div>
-          <DataTable columns={columns} data={documents} />
-        </>
-      )}
+        <div className="flex flex-row gap-3 items-center">
+          <NewFolder />
+          <UploadDocuments />
+        </div>
+      </div>
+      <DataTable columns={columns} data={documents} isLoading={isLoading} />
     </div>
   );
 }

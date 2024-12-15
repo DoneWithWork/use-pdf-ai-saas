@@ -26,7 +26,7 @@ export enum DocumentType {
   FOLDER = "FOLDER",
 }
 
-type PDFDocument = {
+export type PDFDocument = {
   id: string;
   name: string;
   size: number;
@@ -43,3 +43,13 @@ type FolderDocument = {
 };
 
 export type DocumentTypes = PDFDocument | FolderDocument;
+
+export type WorkspaceType = {
+  name: string;
+  id: string;
+  createdAt: Date;
+  Files: workspaceFile[];
+};
+type workspaceFile = {
+  id: string;
+};

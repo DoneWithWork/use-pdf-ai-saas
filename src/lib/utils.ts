@@ -27,3 +27,12 @@ export function absoluteUrl(path: string) {
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}${path}`;
   return `http://localhost:${process.env.PORT ?? 3000}${path}`;
 }
+
+export function ConvertStringToDates<T extends { createdAt: string }>(
+  data: Array<T>
+): Array<Omit<T, "createdAt"> & { createdAt: Date }> {
+  return data.map((item) => ({
+    ...item,
+    createdAt: new Date(item.createdAt),
+  }));
+}

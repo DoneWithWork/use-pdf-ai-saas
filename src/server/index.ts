@@ -12,7 +12,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
-import { DocumentType, DocumentTypes } from "@/types/types";
+import { DocumentType, DocumentTypes, PDFDocument } from "@/types/types";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 
 const utapi = new UTApi();
@@ -124,7 +124,19 @@ export const appRouter = router({
           createdAt: false,
         },
       });
-      return folder;
+      if (!folder) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+      const files: PDFDocument[] = folder.Files.map((file) => {
+        return {
+          id: file.id,
+          name: file.name,
+          size: file.size,
+          documentType: DocumentType.PDF,
+          createdAt: file.createdAt,
+        };
+      });
+      return { ...folder, Files: files };
     }),
   // Returns a User's documents, paginated
   getUserDocumentPaginated: privateProcedure.query(async ({ ctx }) => {
@@ -200,7 +212,13 @@ export const appRouter = router({
     });
   }),
   queryDeleteDoc: privateProcedure
-    .input(z.object({ id: z.string(), isFolder: z.boolean() }))
+    .input(
+      z.object({
+        id: z.string(),
+        isFolder: z.boolean(),
+        isWorkspace: z.boolean().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
 
@@ -233,7 +251,7 @@ export const appRouter = router({
             canDelete: true,
           };
         }
-      } else {
+      } else if (!input.isFolder && !input.isWorkspace) {
         const file = await db.file.findFirst({
           where: {
             userId,
@@ -252,11 +270,35 @@ export const appRouter = router({
 
         if (file.Workspaces.length > 0) return { canDelete: false };
         return { canDelete: true };
+      } else {
+        const workspace = await db.workspace.findFirst({
+          where: {
+            userId,
+            id: input.id,
+          },
+          select: {
+            Files: {
+              select: {
+                id: true,
+              },
+            },
+            name: true,
+          },
+        });
+        if (!workspace) throw new TRPCError({ code: "NOT_FOUND" });
+
+        return { canDelete: true };
       }
     }),
 
-  deleteSingleFileOrFolder: privateProcedure
-    .input(z.object({ id: z.string(), isFolder: z.boolean() }))
+  deleteSingleFileFolderOrWorkspace: privateProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        isFolder: z.boolean(),
+        isWorkspace: z.boolean().optional(),
+      })
+    )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
       try {
@@ -284,7 +326,7 @@ export const appRouter = router({
             },
           });
           return { success: true };
-        } else {
+        } else if (!input.isFolder && !input.isWorkspace) {
           const file = await db.file.delete({
             where: {
               userId,
@@ -297,6 +339,25 @@ export const appRouter = router({
           pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
             ids: [file.id],
           });
+          return { success: true };
+        } else {
+          // Delete the workspace
+          const workspace = await db.workspace.delete({
+            where: {
+              userId,
+              id: input.id,
+            },
+            select: {
+              Messages: true,
+            },
+          });
+          if (!workspace) throw new TRPCError({ code: "NOT_FOUND" });
+          await db.message.deleteMany({
+            where: {
+              workspaceId: input.id,
+            },
+          });
+
           return { success: true };
         }
       } catch {
@@ -575,11 +636,23 @@ export const appRouter = router({
     }),
   getWorkspaces: privateProcedure.query(async ({ ctx }) => {
     const { userId } = ctx;
-    return await db.workspace.findMany({
+    const workspace = await db.workspace.findMany({
       where: {
         userId,
       },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        Files: {
+          select: {
+            id: true,
+          },
+        },
+      },
     });
+    if (!workspace) throw new TRPCError({ code: "NOT_FOUND" });
+    return workspace;
   }),
 });
 // Export type router type signature,

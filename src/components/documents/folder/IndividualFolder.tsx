@@ -1,10 +1,12 @@
 "use client";
-import { ArrowLeftIcon, File, Folder } from "lucide-react";
+import { ArrowLeftIcon, Folder } from "lucide-react";
 import Link from "next/link";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import UploadDocuments from "../UploadDocuments";
 import { trpc } from "@/app/_trpc/client";
 import Loader from "../../mis/Loader";
+import { DataTable } from "@/components/tables/data-table";
+import { documentColumns } from "@/components/tables/DocumentColumns";
 export const FolderIdContext = createContext<{ folderId: string }>({
   folderId: "",
 });
@@ -45,12 +47,15 @@ export default function IndividualFolder({ folderId }: { folderId: string }) {
       </div>
       <div className="mt-4">
         {folder && folder.Files.length > 0 ? (
-          folder.Files.map((file, index) => (
-            <div key={index} className="flex flex-row items-center gap-2">
-              <File size={25} />
-              <p>{file.name}</p>
-            </div>
-          ))
+          <DataTable
+            columns={documentColumns}
+            data={folder.Files.map((file) => {
+              return {
+                ...file,
+                createdAt: new Date(file.createdAt),
+              };
+            })}
+          />
         ) : (
           <>
             {isLoading ? (

@@ -101,7 +101,10 @@
     @apply flex flex-col items-center justify-center;
   }
   .flex-row-custom {
-    @apply flex flex-row gap-4 items-center;
+    @apply flex flex-row gap-1 items-center justify-center;
+  }
+  .flex-row-custom-2 {
+    @apply flex flex-row gap-2;
   }
   .scrollbar-w-2::-webkit-scrollbar {
     width: 0.25rem;
