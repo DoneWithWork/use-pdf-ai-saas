@@ -1,3 +1,4 @@
+import "server-only";
 import React, { Suspense } from "react";
 import db from "../../../prisma/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
@@ -13,11 +14,11 @@ export default async function AuthCallBackpage() {
         id: user.id,
       },
     });
+    console.log("dbUser", dbUser);
     if (dbUser) {
       redirect("/dashboard/workspaces");
     }
   }
-
   return (
     <Suspense>
       <AuthCallBack />

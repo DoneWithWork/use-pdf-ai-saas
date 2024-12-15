@@ -4,5 +4,5 @@ export default async function middleware(req: Request) {
   return withAuth(req);
 }
 export const config = {
-  matcher: ["/dashboard/:path*", "/auth-callback"],
+  matcher: ["/dashboard/:path*"],
 };

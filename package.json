@@ -15,6 +15,8 @@
     "@emotion/server": "^11.11.0",
     "@hookform/resolvers": "^3.9.1",
     "@kinde-oss/kinde-auth-nextjs": "^2.4.6",
+    "@kinde-oss/kinde-auth-react": "^4.0.4",
+    "@kinde/management-api-js": "^0.11.0",
     "@langchain/community": "^0.3.16",
     "@langchain/core": "^0.3.19",
     "@langchain/openai": "^0.3.14",
@@ -24,7 +26,7 @@
     "@mantine/hooks": "^7.14.3",
     "@mantine/next": "^6.0.22",
     "@pinecone-database/pinecone": "^3.0.3",
-    "@prisma/client": "5.22.0",
+    "@prisma/client": "6.0.1",
     "@radix-ui/react-alert-dialog": "^1.1.2",
     "@radix-ui/react-avatar": "^1.1.1",
     "@radix-ui/react-dialog": "^1.1.2",
@@ -85,7 +87,7 @@
     "postcss": "^8.4.49",
     "postcss-preset-mantine": "^1.17.0",
     "postcss-simple-vars": "^7.0.1",
-    "prisma": "5.22.0",
+    "prisma": "6.0.1",
     "tailwindcss": "^3.4.15",
     "typescript": "^5.7.2"
   }

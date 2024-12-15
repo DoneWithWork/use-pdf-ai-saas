@@ -14,6 +14,7 @@ import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
 import { DocumentType, DocumentTypes, PDFDocument } from "@/types/types";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
+import { Users, init } from "@kinde/management-api-js";
 
 const utapi = new UTApi();
 export const appRouter = router({
@@ -81,33 +82,41 @@ export const appRouter = router({
       });
       return { success: true };
     }),
-  authCallback: publicProcedure.query(async () => {
-    // Retrieve users from a datasource, this is an imaginary database
-    const { getUser } = getKindeServerSession();
-    const user = await getUser();
-    console.log("hi");
-    console.log(user);
-    if (!user) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    if (!user.id || !user.email) {
-      throw new TRPCError({ code: "UNAUTHORIZED" });
-    }
-    const dbUser = await db.user.findFirst({
-      where: {
-        id: user.id,
-      },
-    });
-    console.log(":hi");
-    if (!dbUser) {
-      await db.user.create({
-        data: {
+  authCallback: privateProcedure.query(async () => {
+    try {
+      const { getUser } = getKindeServerSession();
+      const user = await getUser();
+      console.log("hi");
+      console.log(user);
+      if (!user) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      if (!user.id || !user.email) {
+        throw new TRPCError({ code: "UNAUTHORIZED" });
+      }
+      const dbUser = await db.user.findFirst({
+        where: {
           id: user.id,
-          email: user.email,
         },
       });
+      console.log(":hi");
+      if (!dbUser) {
+        await db.user.create({
+          data: {
+            id: user.id,
+            email: user.email,
+          },
+        });
+      }
+      return { success: true };
+    } catch (error) {
+      console.log("Error in authCallback", error);
+      throw new TRPCError({
+        code: error instanceof TRPCError ? error.code : "INTERNAL_SERVER_ERROR",
+        message:
+          error instanceof Error ? error.message : "Unexpected error occurred.",
+      });
     }
-    return { success: true };
   }),
   getSingleFolder: privateProcedure
     .input(z.object({ folderId: z.string() }))
@@ -414,6 +423,60 @@ export const appRouter = router({
         nextCursor: nextCursor,
       };
     }),
+  deleteUser: privateProcedure.mutation(async ({ ctx }) => {
+    try {
+      const { userId } = ctx;
+      init();
+      const user = await db.user.findFirst({
+        where: {
+          id: userId,
+        },
+      });
+      if (!user) throw new TRPCError({ code: "NOT_FOUND" });
+      const params = {
+        id: user.id,
+      };
+      // const deleteSession = await Users.deleteUserSessions({ userId: user.id });
+      // if (deleteSession.code !== "OK") {
+      //   console.log("Error deleting user sessions from kinde api");
+      //   return { success: false };
+      // }
+      const deletedUser = await Users.deleteUser(params);
+      if (deletedUser.code !== "OK") {
+        console.log("Error deleting user from kinde api");
+        return { success: false };
+      }
+      //cascade delete all references to user
+      const deletedUserFromDb = await db.user.delete({
+        where: {
+          id: userId,
+        },
+        select: {
+          File: {
+            select: {
+              id: true,
+              key: true,
+            },
+          },
+        },
+      });
+      //!!! NEED to remove billing from stripe
+      const fileIds = deletedUserFromDb.File.map((file) => file.id);
+      const fileKeys = deletedUserFromDb.File.map((file) => file.key);
+      await utapi.deleteFiles(fileKeys);
+      if (fileIds.length > 0) {
+        const pinecone = new PineconeClient();
+        await pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
+          ids: fileIds,
+        });
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.log("Error deleting user", error);
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    }
+  }),
   createNewChat: privateProcedure
     .input(
       z.object({

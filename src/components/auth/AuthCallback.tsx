@@ -17,12 +17,17 @@ export default function AuthCallBack() {
 
   // Use useEffect to check for errors and redirect if unauthorized
   useEffect(() => {
+    console.log(error);
     if (error?.data?.httpStatus === 401) {
       console.log("unauthorized");
       router.push("/");
     }
     if (data?.success) {
-      router.push(origin ? `/dashboard/workspaces` : "/dashboard/workspaces");
+      router.push(
+        origin
+          ? `/dashboard/workspaces?origin=${origin}`
+          : "/dashboard/workspaces"
+      );
     }
   }, [error, data, origin, router]);
 

@@ -1,13 +1,44 @@
+"use client";
 import LogoutButton from "@/components/mis/LogoutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import Image from "next/image";
 import React from "react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 
-export default async function ProfilePage() {
-  const { getUser } = getKindeServerSession();
-  const user = await getUser();
+import { trpc } from "@/app/_trpc/client";
+import { ErrorToast, SuccessToast } from "@/components/mis/Toasts";
+import { useRouter } from "next/navigation";
+import Loader from "@/components/mis/Loader";
+export default function ProfilePage() {
+  const router = useRouter();
+  const { user } = useKindeBrowserClient();
+  const { mutate: deleteUser, isPending: isDeleting } =
+    trpc.deleteUser.useMutation({
+      retry: 3,
+      retryDelay: 1000,
+      onSuccess: () => {
+        SuccessToast("Successfully deleted your account");
+
+        router.push("/api/auth/logout");
+        return;
+      },
+      onError: (error) => {
+        ErrorToast(error.message);
+      },
+    });
   return (
     <div className="wrapper">
       <h1 className="title mt-4">My Account</h1>
@@ -41,6 +72,50 @@ export default async function ProfilePage() {
       </div> */}
       <div className="mt-4">
         <LogoutButton />
+      </div>
+      <div className=" py-2 mt-4 border-2 border-red-500 rounded-md px-4">
+        <p className="text-2xl text-red-700 font-semibold">
+          Delete Your Account
+        </p>
+        {isDeleting ? (
+          <Loader message="Deleting your account..." />
+        ) : (
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant={"destructive"} aria-label="Delete User">
+                Delete Your account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="text-2xl font-semibold">
+                  Are you absolutely sure?
+                </AlertDialogTitle>
+                <AlertDialogDescription className="text-lg">
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers. If any
+                  billings/subscriptions are active they will be cancelled and
+                  not refunded.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  asChild
+                  className="bg-red-500 hover:bg-red-600"
+                >
+                  <Button
+                    variant={"destructive"}
+                    onClick={() => deleteUser()}
+                    disabled={isDeleting}
+                  >
+                    Delete Account
+                  </Button>
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        )}
       </div>
     </div>
   );
