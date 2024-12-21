@@ -3,14 +3,24 @@ import { WorkspaceType } from "@/types/types";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Button } from "../ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ArrowUpDown, Eye } from "lucide-react";
 
 import DeleteDocument from "../documents/folder/DeleteDocument";
+import Link from "next/link";
 
 export const workspaceColumns: ColumnDef<WorkspaceType>[] = [
   {
     accessorKey: "name",
-
+    cell: ({ row }) => {
+      return (
+        <Link
+          className="hover:underline"
+          href={"/workspace/" + row.original.id}
+        >
+          {row.original.name}
+        </Link>
+      );
+    },
     header: ({ column }) => {
       return (
         <Button
@@ -59,7 +69,18 @@ export const workspaceColumns: ColumnDef<WorkspaceType>[] = [
       const isFolder = false;
       const isWorkspace = true;
       return (
-        <DeleteDocument id={id} isFolder={isFolder} isWorkspace={isWorkspace} />
+        <div className="flex-row-custom  ">
+          <DeleteDocument
+            id={id}
+            isFolder={isFolder}
+            isWorkspace={isWorkspace}
+          />
+          <Link href={"/workspace/" + id} aria-label="View Folder">
+            <Button size={"sm"} className="bg-green-400 hover:bg-green-500">
+              <Eye size={20} className="w-4 h-4" />
+            </Button>
+          </Link>
+        </div>
       );
     },
   },

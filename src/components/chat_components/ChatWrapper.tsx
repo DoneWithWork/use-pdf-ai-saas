@@ -21,7 +21,7 @@ export default function ChatWrapper({ workspaceId, files }: ChatWrapperProps) {
         data.state.data?.status === "SUCCESS" ||
         data.state.data?.status === "PROCESSING"
           ? false
-          : 1500,
+          : 1000,
     }
   );
   // need to check if la

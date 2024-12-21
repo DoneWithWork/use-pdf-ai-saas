@@ -26,7 +26,7 @@ export default async function UserProfile() {
                 width={36}
                 height={36}
                 alt="user profile image"
-                className="h-9 w-9 "
+                className="h-9 w-9 rounded-full border-2 border-gray-300"
               />
             ) : (
               <Avatar>

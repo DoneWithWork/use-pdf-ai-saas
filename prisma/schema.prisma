@@ -17,15 +17,19 @@ model User {
   id    String @id @unique
   email String @unique
   File  File[]
+  plan  Plans  @default(FREE)
 
-  Workspace              Workspace[]
-  stripeCustomerId       String?     @unique @map(name: "stripe_customer_id")
-  stripeSubscriptionId   String?     @unique @map(name: "stripe_subscription_id")
-  stripePriceId          String?     @unique @map(name: "stripe_price_id")
-  stripeCurrentPeriodEnd DateTime?   @map(name: "stripe_current_period_end")
+  Workspace  Workspace[]
+  customerId String?     @unique
+
+  stripeCustomerId       String?   @unique @map(name: "stripe_customer_id")
+  stripeSubscriptionId   String?   @unique @map(name: "stripe_subscription_id")
+  stripePriceId          String?   @unique @map(name: "stripe_price_id")
+  stripeCurrentPeriodEnd DateTime? @map(name: "stripe_current_period_end")
   message                Message[]
 
-  Folders Folders[]
+  Folders        Folders[]
+  subscriptionId String?
 }
 
 enum UploadStatus {
@@ -97,4 +101,15 @@ model Message {
   userId      String?
   Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
   workspaceId String?
+}
+
+enum Plans {
+  FREE
+  STUDENT
+  PRO
+}
+
+enum SubscriptionPeriod {
+  MONTHLY
+  YEARLY
 }

@@ -22,7 +22,7 @@ export const appRouter = router({
     const { userId } = ctx;
 
     const billingUrl = absoluteUrl("/dashboard/billing");
-
+    console.log(billingUrl);
     if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
     const dbUser = await db.user.findFirst({
@@ -44,6 +44,7 @@ export const appRouter = router({
       return { url: stripeSession.url };
     }
 
+    //user is not subscribe, allow them to buy the product
     const stripeSession = await stripe.checkout.sessions.create({
       success_url: billingUrl,
       cancel_url: billingUrl,

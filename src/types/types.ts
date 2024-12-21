@@ -41,7 +41,20 @@ type FolderDocument = {
   documentType: DocumentType.FOLDER;
   createdAt: Date;
 };
-
+type features = {
+  text: string;
+  tooltip: string;
+  negative?: boolean;
+};
+export type PricingType = {
+  title: string;
+  price: number;
+  quota: number;
+  description: string;
+  buttonText: string;
+  features: features[];
+  href: string;
+};
 export type DocumentTypes = PDFDocument | FolderDocument;
 
 export type WorkspaceType = {

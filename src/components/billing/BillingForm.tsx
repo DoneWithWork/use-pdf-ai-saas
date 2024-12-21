@@ -15,12 +15,14 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ErrorToast } from "../mis/Toasts";
+import Link from "next/link";
 
 interface BillingFormProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
+  paymentLink: string;
 }
 
-const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
+const BillingForm = ({ subscriptionPlan, paymentLink }: BillingFormProps) => {
   const { mutate: createStripeSession, isPending } =
     trpc.createStripeSession.useMutation({
       onSuccess: ({ url }) => {
@@ -61,7 +63,6 @@ const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
                 ? "Manage Subscription"
                 : "Upgrade to PRO"}
             </Button>
-
             {subscriptionPlan.isSubscribed ? (
               <p className="rounded-full text-sm font-medium">
                 {subscriptionPlan.isCanceled

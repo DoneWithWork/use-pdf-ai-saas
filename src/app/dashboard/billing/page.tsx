@@ -7,7 +7,10 @@ const Page = async () => {
   return (
     <div className="wrapper">
       <h1 className="title mt-5">Billing</h1>
-      <BillingForm subscriptionPlan={subscriptionPlan} />
+      <BillingForm
+        subscriptionPlan={subscriptionPlan}
+        paymentLink={process.env.STRIPE_MONTHLY_PLAN_LINK || ""}
+      />
     </div>
   );
 };
