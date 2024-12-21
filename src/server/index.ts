@@ -9,7 +9,7 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PineconeStore } from "@langchain/pinecone";
-import { absoluteUrl } from "@/lib/utils";
+import { absoluteUrl, capitalizeFirstLetter } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
 import { DocumentType, DocumentTypes, PDFDocument } from "@/types/types";
@@ -18,52 +18,60 @@ import { Users, init } from "@kinde/management-api-js";
 
 const utapi = new UTApi();
 export const appRouter = router({
-  createStripeSession: privateProcedure.mutation(async ({ ctx }) => {
-    const { userId } = ctx;
+  createStripeSession: privateProcedure
+    .input(
+      z.object({
+        planName: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
+      console.log("hi");
+      const billingUrl = absoluteUrl("/dashboard/billing");
+      console.log(billingUrl);
+      if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-    const billingUrl = absoluteUrl("/dashboard/billing");
-    console.log(billingUrl);
-    if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
-
-    const dbUser = await db.user.findFirst({
-      where: {
-        id: userId,
-      },
-    });
-
-    if (!dbUser) throw new TRPCError({ code: "UNAUTHORIZED" });
-
-    const subscriptionPlan = await getUserSubscriptionPlan();
-
-    if (subscriptionPlan.isSubscribed && dbUser.stripeCustomerId) {
-      const stripeSession = await stripe.billingPortal.sessions.create({
-        customer: dbUser.stripeCustomerId,
-        return_url: billingUrl,
+      const dbUser = await db.user.findFirst({
+        where: {
+          id: userId,
+        },
       });
 
-      return { url: stripeSession.url };
-    }
+      if (!dbUser) throw new TRPCError({ code: "UNAUTHORIZED" });
 
-    //user is not subscribe, allow them to buy the product
-    const stripeSession = await stripe.checkout.sessions.create({
-      success_url: billingUrl,
-      cancel_url: billingUrl,
-      payment_method_types: ["card"],
-      mode: "subscription",
-      billing_address_collection: "auto",
-      line_items: [
-        {
-          price: PLANS.find((plan) => plan.name === "Pro")?.price.priceIds.test,
-          quantity: 1,
+      const subscriptionPlan = await getUserSubscriptionPlan();
+      console.log(subscriptionPlan);
+      if (subscriptionPlan.isSubscribed && dbUser.stripeCustomerId) {
+        const stripeSession = await stripe.billingPortal.sessions.create({
+          customer: dbUser.stripeCustomerId,
+          return_url: billingUrl,
+        });
+
+        return { url: stripeSession.url };
+      }
+      console.log(capitalizeFirstLetter(input.planName));
+      //user is not subscribe, allow them to buy the product
+      const stripeSession = await stripe.checkout.sessions.create({
+        success_url: billingUrl,
+        cancel_url: billingUrl,
+        payment_method_types: ["card"],
+        mode: "subscription",
+        billing_address_collection: "auto",
+        line_items: [
+          {
+            price: PLANS.find(
+              (plan) => plan.name === capitalizeFirstLetter(input.planName)
+            )?.price.priceIds.test,
+            quantity: 1,
+          },
+        ],
+        metadata: {
+          userId: userId,
         },
-      ],
-      metadata: {
-        userId: userId,
-      },
-    });
-
-    return { url: stripeSession.url };
-  }),
+      });
+      console.log(stripeSession);
+      return { url: stripeSession.url };
+    }),
   getList: publicProcedure.query(async () => {
     // Retrieve users from a datasource, this is an imaginary database
     return [1, 2, 3];
@@ -526,6 +534,9 @@ export const appRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
       const ids = input.ids;
+      const subscriptionPlan = await getUserSubscriptionPlan();
+      const plan = PLANS.find((plan) => plan.name === subscriptionPlan.name);
+      if (!plan) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       const notVectorisedFiles = await db.file.findMany({
         where: {
           userId,
@@ -542,50 +553,49 @@ export const appRouter = router({
         },
       });
       if (notVectorisedFiles.length === 0) return;
-      try {
-        for (const file of notVectorisedFiles) {
-          try {
-            const res = await fetch(file.url);
-            const blob = await res.blob();
-            const loader = new PDFLoader(blob);
-            const pageLevelDocs = await loader.load();
 
-            const embeddings = new OpenAIEmbeddings({
-              openAIApiKey: process.env.OPENAI_API_KEY!,
-              model: "text-embedding-3-small",
-            });
-
-            const pinecone = new PineconeClient();
-            const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
-
-            console.log(`Vectorising ${file.name}`);
-            await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-              //@ts-expect-error - this is a bug in the pinecone types
-              pineconeIndex,
-              namespace: file.id,
-            });
-
-            await db.file.update({
-              data: { vectorStatus: "SUCCESS" },
-              where: {
-                Workspaces: {
-                  some: {
-                    id: input.workspaceId,
-                  },
-                },
-                userId,
-                id: file.id,
-              },
-            });
-
-            console.log(`Done vectorising ${file.name}`);
-          } catch (error) {
-            console.error(`Error processing file ${file.name}:`, error);
-          }
+      for (const file of notVectorisedFiles) {
+        const res = await fetch(file.url);
+        const blob = await res.blob();
+        const loader = new PDFLoader(blob);
+        const pageLevelDocs = await loader.load();
+        const pages = pageLevelDocs.length;
+        const pageCountExceeded = pages > 1;
+        if (pageCountExceeded) {
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message: `You have exceeded the ${plan.pagesPerPDF} per PDF limit`,
+          });
         }
-      } catch (error) {
-        console.log("Error vectorising documents", error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        const embeddings = new OpenAIEmbeddings({
+          openAIApiKey: process.env.OPENAI_API_KEY!,
+          model: "text-embedding-3-small",
+        });
+
+        const pinecone = new PineconeClient();
+        const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
+
+        console.log(`Vectorising ${file.name}`);
+        await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
+          //@ts-expect-error - this is a bug in the pinecone types
+          pineconeIndex,
+          namespace: file.id,
+        });
+
+        await db.file.update({
+          data: { vectorStatus: "SUCCESS" },
+          where: {
+            Workspaces: {
+              some: {
+                id: input.workspaceId,
+              },
+            },
+            userId,
+            id: file.id,
+          },
+        });
+
+        console.log(`Done vectorising ${file.name}`);
       }
     }),
   // check if all files have been vectorised and uploaded successfully

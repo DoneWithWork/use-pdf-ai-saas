@@ -18,14 +18,14 @@ export default async function Pricing() {
   const user = await getUser();
 
   return (
-    <div className="w-[95%] flex flex-col items-center mx-auto">
+    <div className="w-[95%] flex flex-col items-center mx-auto mb-20 ">
       <h1 className="heading mt-3 text-blue-500">Your Study Tool</h1>
       <p className="mt-2 description text-lg ">
         Gain new insights. Supercharge and <strong>10x</strong> your
         productivity.
       </p>
 
-      <div className="w-full grid grid-cols-1 gap-14 lg:gap-4  xl:gap-2 sm:mt-4 md:mt-14  lg:grid-cols-3">
+      <div className="w-full grid grid-cols-1 gap-14 lg:gap-4  xl:gap-2 sm:mt-4 md:mt-14  lg:grid-cols-3 ">
         <TooltipProvider>
           {price &&
             price.map((plan, index) => (
@@ -94,11 +94,23 @@ export default async function Pricing() {
                     "p-5 border-t   border-gray-200"
                   )}
                 >
-                  {plan.title === "PRO" && <UpgradeButton plan={plan.title} />}
-                  {plan.title === "STUDENT" && (
-                    <UpgradeButton plan={plan.title} />
+                  {user ? (
+                    (plan.title === "PRO" || plan.title === "STUDENT") && (
+                      <UpgradeButton plan={plan.title as "PRO" | "STUDENT"} />
+                    )
+                  ) : (
+                    <Link
+                      href={"/dashboard/billing"}
+                      className={buttonVariants({
+                        className: "w-full mx-auto ",
+                        variant: "secondary",
+                      })}
+                    >
+                      Sign Up to Get Started
+                      <ArrowRight className="h-5 w-5 ml-1.5" />
+                    </Link>
                   )}
-                  {plan.title === "FREE" && (
+                  {plan.title === "FREE" && user && (
                     <Link
                       href={"/dashboard/billing"}
                       className={buttonVariants({

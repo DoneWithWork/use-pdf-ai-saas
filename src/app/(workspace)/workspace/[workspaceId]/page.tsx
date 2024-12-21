@@ -7,9 +7,10 @@ import dynamic from "next/dynamic";
 
 import React, { Suspense, useEffect, useState } from "react";
 
-import { ErrorToast } from "@/components/mis/Toasts";
 import WorkspaceNav from "@/components/chat_components/WorkspaceNav";
 import Loader from "@/components/mis/Loader";
+import { ErrorToast } from "@/components/mis/Toasts";
+import { Slide, toast } from "react-toastify";
 const PdfViewerComponent = dynamic(
   () => import("../../../../components/pdf/PdfRenderer"),
   {
@@ -26,13 +27,25 @@ export default function WorkSpace({
 
   // Vectorise all the documents in the workspace
   const { mutate: vectoriseDocs } = trpc.vectoriseDocuments.useMutation({
+    onError: (error) => {
+      console.log(error);
+      toast.error(error.message, {
+        position: "bottom-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        transition: Slide,
+      });
+    },
+
     onSuccess: () => {
       console.log("Success");
     },
-    onError: (error) => {
-      console.log(error);
-      return ErrorToast(`Error: ${error.message}`);
-    },
+
     retry: 3,
     retryDelay: 3000,
   });

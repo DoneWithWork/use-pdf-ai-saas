@@ -36,3 +36,6 @@ export function ConvertStringToDates<T extends { createdAt: string }>(
     createdAt: new Date(item.createdAt),
   }));
 }
+export function capitalizeFirstLetter(plan: string) {
+  return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
+}

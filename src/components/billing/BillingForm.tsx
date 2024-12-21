@@ -15,14 +15,12 @@ import { Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ErrorToast } from "../mis/Toasts";
-import Link from "next/link";
 
 interface BillingFormProps {
   subscriptionPlan: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
-  paymentLink: string;
 }
 
-const BillingForm = ({ subscriptionPlan, paymentLink }: BillingFormProps) => {
+const BillingForm = ({ subscriptionPlan }: BillingFormProps) => {
   const { mutate: createStripeSession, isPending } =
     trpc.createStripeSession.useMutation({
       onSuccess: ({ url }) => {
@@ -39,7 +37,8 @@ const BillingForm = ({ subscriptionPlan, paymentLink }: BillingFormProps) => {
         className="mt-3"
         onSubmit={(e) => {
           e.preventDefault();
-          createStripeSession();
+
+          createStripeSession({ planName: "PRO" });
         }}
       >
         <Card>
@@ -48,7 +47,9 @@ const BillingForm = ({ subscriptionPlan, paymentLink }: BillingFormProps) => {
             <CardDescription>
               You are currently on the{" "}
               <strong>
-                {subscriptionPlan.isSubscribed ? subscriptionPlan.name : "Free"}
+                {subscriptionPlan.isSubscribed && "name" in subscriptionPlan
+                  ? subscriptionPlan.name
+                  : "Free"}
               </strong>{" "}
               plan.
             </CardDescription>

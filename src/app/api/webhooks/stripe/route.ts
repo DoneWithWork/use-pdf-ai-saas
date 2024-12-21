@@ -36,6 +36,8 @@ export async function POST(request: NextRequest) {
       session.subscription as string
     );
 
+    // const planName = subscription.items.data[0]?.price.product as string;
+
     await db.user.update({
       where: {
         id: session.metadata.userId,
@@ -69,6 +71,20 @@ export async function POST(request: NextRequest) {
       },
     });
   }
-
+  // if (event.type === "subscription_schedule.canceled") {
+  //   const subscription = await stripe.subscriptions.retrieve(
+  //     session.subscription as string
+  //   );
+  //   await db.user.update({
+  //     where: {
+  //       stripeSubscriptionId: subscription.id,
+  //     },
+  //     data: {
+  //       stripeSubscriptionId: null,
+  //       stripePriceId: null,
+  //       stripeCurrentPeriodEnd: null,
+  //     },
+  //   });
+  // }
   return new Response(null, { status: 200 });
 }
