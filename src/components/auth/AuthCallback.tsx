@@ -17,7 +17,6 @@ export default function AuthCallBack() {
 
   // Use useEffect to check for errors and redirect if unauthorized
   useEffect(() => {
-    console.log(error);
     if (error?.data?.httpStatus === 401) {
       console.log("unauthorized");
       router.push("/");

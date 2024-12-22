@@ -1,6 +1,7 @@
 "use client";
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
@@ -30,27 +31,31 @@ export default function MobileSideBar({
               <Image src={Logo} alt="Logo" width={150} height={100}></Image>
             </Link>
             <div className="mt-12 space-y-4">
-              <Link
-                href={"/dashboard/workspaces"}
-                className={cn(
-                  pathName === "/dashboard/workspaces" ? "bg-blue-400 " : "",
-                  "icon_link text-black"
-                )}
-              >
-                <WorkflowIcon size={20} />
-                <span className="text-xl ">Workspaces</span>
-              </Link>
+              <SheetClose asChild>
+                <Link
+                  href={"/dashboard/workspaces"}
+                  className={cn(
+                    pathName === "/dashboard/workspaces" ? "bg-blue-400 " : "",
+                    "icon_link text-black"
+                  )}
+                >
+                  <WorkflowIcon size={20} />
+                  <span className="text-xl ">Workspaces</span>
+                </Link>
+              </SheetClose>
 
-              <Link
-                href={"/dashboard/documents"}
-                className={cn(
-                  pathName === "/dashboard/documents" ? "bg-blue-400 " : "",
-                  "icon_link text-black"
-                )}
-              >
-                <File size={20} />
-                <span className="text-xl ">Documents</span>
-              </Link>
+              <SheetClose asChild>
+                <Link
+                  href={"/dashboard/documents"}
+                  className={cn(
+                    pathName === "/dashboard/documents" ? "bg-blue-400 " : "",
+                    "icon_link text-black"
+                  )}
+                >
+                  <File size={20} />
+                  <span className="text-xl ">Documents</span>
+                </Link>
+              </SheetClose>
             </div>
           </SheetTitle>
 

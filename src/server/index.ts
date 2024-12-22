@@ -534,6 +534,7 @@ export const appRouter = router({
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
       const ids = input.ids;
+      console.log(ids);
       const subscriptionPlan = await getUserSubscriptionPlan();
       const plan = PLANS.find((plan) => plan.name === subscriptionPlan.name);
       if (!plan) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
@@ -549,7 +550,7 @@ export const appRouter = router({
               id: input.workspaceId,
             },
           },
-          vectorStatus: "PENDING",
+          vectorStatus: { in: ["PENDING", "FAILED"] },
         },
       });
       if (notVectorisedFiles.length === 0) return;
@@ -560,12 +561,26 @@ export const appRouter = router({
         const loader = new PDFLoader(blob);
         const pageLevelDocs = await loader.load();
         const pages = pageLevelDocs.length;
-        const pageCountExceeded = pages > 1;
+        const pageCountExceeded = pages > plan.pagesPerPDF;
+        console.log(pageCountExceeded);
         if (pageCountExceeded) {
+          await db.file.update({
+            data: { vectorStatus: "FAILED" },
+            where: {
+              Workspaces: {
+                some: {
+                  id: input.workspaceId,
+                },
+              },
+              userId,
+              id: file.id,
+            },
+          });
           throw new TRPCError({
             code: "FORBIDDEN",
-            message: `You have exceeded the ${plan.pagesPerPDF} per PDF limit`,
+            message: `You have exceeded the ${plan.pagesPerPDF} pages per PDF limit`,
           });
+          return;
         }
         const embeddings = new OpenAIEmbeddings({
           openAIApiKey: process.env.OPENAI_API_KEY!,
@@ -619,7 +634,13 @@ export const appRouter = router({
         (file) =>
           file.uploadStatus !== "SUCCESS" || file.vectorStatus !== "SUCCESS"
       );
-
+      const failedFile = workspace.Files.some(
+        (file) => file.vectorStatus === "FAILED"
+      );
+      console.log(failedFile);
+      if (failedFile) {
+        return { status: "FAILED" as const };
+      }
       if (hasIncompleteFiles) {
         return { status: "PROCESSING" as const };
       }

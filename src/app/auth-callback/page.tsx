@@ -14,7 +14,6 @@ export default async function AuthCallBackpage() {
         id: user.id,
       },
     });
-    console.log("dbUser", dbUser);
     if (dbUser) {
       redirect("/dashboard/workspaces");
     }

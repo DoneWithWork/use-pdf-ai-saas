@@ -20,7 +20,7 @@ export const PLANS: PlanType[] = [
     price: {
       amount: 14,
       priceIds: {
-        test: "price_1QYUbN051qkB6Ei3Cvg7Kfdo",
+        test: "price_1QR9rz051qkB6Ei3jjmD4WD9",
         production: "",
       },
     },

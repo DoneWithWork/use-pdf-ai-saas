@@ -35,10 +35,8 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
     },
     onUploadError: (error) => {
       ErrorToast(`Error uploading file: ${error.message}`);
-      console.log("upload error");
     },
     onUploadProgress: (progress) => {
-      console.log(progress);
       setProgress(progress);
     },
     onClientUploadComplete: (res) => {
@@ -103,6 +101,7 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
       {isUploading && (
         <div>
           <Progress value={progress} className="h-1 w-full bg-zinc-200" />
+          <p className="mt-2 font-semibold">Uploading...</p>
         </div>
       )}
     </div>

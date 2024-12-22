@@ -20,7 +20,6 @@ const ChatInput = ({ isDisabled, files }: ChatInputProps) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [popUpSuggestions, setPopUpSuggestions] = useState(false);
   const acceptSuggestion = (name: string) => {
-    console.log(name);
     const currentMessage = message;
     const atIndex = currentMessage.lastIndexOf("@");
     const newMessage = currentMessage.substring(0, atIndex + 1) + name;
@@ -71,9 +70,7 @@ const ChatInput = ({ isDisabled, files }: ChatInputProps) => {
                     const words = value.split(" ");
                     const lastWord = words.pop();
                     const containsAt = lastWord && lastWord.charAt(0) === "@";
-                    console.log(words);
                     if (containsAt) {
-                      console.log("Pop up suggestions"); // Replace with your suggestion logic
                       setPopUpSuggestions(true);
                     } else {
                       setPopUpSuggestions(false);

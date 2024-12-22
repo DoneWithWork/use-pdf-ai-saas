@@ -1,11 +1,12 @@
 import React from "react";
 
 import { trpc } from "@/app/_trpc/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, XCircle } from "lucide-react";
 import { FileType } from "@/types/types";
 import { ChatContextProvider } from "./ChatContext";
 import Messages from "./message/Messages";
 import ChatInput from "./ChatInput";
+import UpgradeButton from "../mis/UpgradeButton";
 
 type ChatWrapperProps = {
   workspaceId: string;
@@ -16,12 +17,15 @@ export default function ChatWrapper({ workspaceId, files }: ChatWrapperProps) {
   const { data, isLoading } = trpc.getAllFileStatuses.useQuery(
     { workspaceId }, // Pass the fileId as input
     {
-      //stop refetching if successfull
-      refetchInterval: (data) =>
-        data.state.data?.status === "SUCCESS" ||
-        data.state.data?.status === "PROCESSING"
-          ? false
-          : 1000,
+      // Stop refetching if successful, processing, or failed
+      refetchInterval: (data) => {
+        if (
+          data.state.data?.status === "SUCCESS" ||
+          data.state.data?.status === "FAILED"
+        )
+          return false;
+        else return 1000;
+      },
     }
   );
   // need to check if la
@@ -53,22 +57,27 @@ export default function ChatWrapper({ workspaceId, files }: ChatWrapperProps) {
         <ChatInput isDisabled files={files} />
       </div>
     );
-  // if (data?.status === "FAILED")
-  //   return (
-  //     <div className="relative min-h-full bg-zinc-200 flex divide-y divide-zinc-200 flex-col justify-between gap-2 ">
-  //       <div className="flex-1 flex justify-center items-center flex-col mb-28">
-  //         <div className="flex flex-col items-center gap-2">
-  //           <XCircle className="h-8 w-8 text-red-500 " />
-  //           <h3 className="font-semibold text-xl">Too Many pages in PDF</h3>
-  //           <p>
-  //             Your <span className="font-medium">Free</span> Plan Supports up to
-  //             5 pages.
-  //           </p>
-  //         </div>
-  //       </div>
-  //       <ChatInput isDisabled />
-  //     </div>
-  //   );
+
+  if (data?.status === "FAILED")
+    return (
+      <div className="relative min-h-full bg-zinc-200 flex divide-y divide-zinc-200 flex-col justify-between gap-2 ">
+        <div className="flex-1 flex justify-center items-center flex-col mb-28">
+          <div className="flex flex-col items-center gap-2">
+            <XCircle className="h-8 w-8 text-red-500 " />
+            <h3 className="font-semibold text-xl">Too Many pages in PDF</h3>
+            <p>
+              Your <span className="font-medium">Free</span> Plan Supports up to
+              5 pages.
+            </p>
+            <div>
+              <p className="my-3">Upgrade Now To Chat with your PDFs</p>
+              <UpgradeButton plan="PRO" />
+            </div>
+          </div>
+        </div>
+        <ChatInput isDisabled files={files} />
+      </div>
+    );
   return (
     <ChatContextProvider workspaceId={workspaceId}>
       <div className="relative min-h-full bg-zinc-50 flex  flex-col justify-between gap-2">

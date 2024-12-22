@@ -35,7 +35,7 @@ export const price: PricingType[] = [
   },
   {
     title: "PRO",
-    price: 14,
+    price: 10,
     quota: PLANS.find((plan) => plan.name === "Pro")?.quota || 2,
     description: "For the professionals",
     buttonText: "Get started",

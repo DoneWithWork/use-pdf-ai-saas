@@ -28,7 +28,6 @@ export default function WorkSpace({
   // Vectorise all the documents in the workspace
   const { mutate: vectoriseDocs } = trpc.vectoriseDocuments.useMutation({
     onError: (error) => {
-      console.log(error);
       toast.error(error.message, {
         position: "bottom-right",
         autoClose: 3000,
@@ -42,12 +41,8 @@ export default function WorkSpace({
       });
     },
 
-    onSuccess: () => {
-      console.log("Success");
-    },
-
-    retry: 3,
-    retryDelay: 3000,
+    onSuccess: () => {},
+    retry: false,
   });
 
   const {

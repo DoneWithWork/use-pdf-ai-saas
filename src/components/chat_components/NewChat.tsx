@@ -22,13 +22,11 @@ export default function NewChat() {
   });
   const { mutate } = trpc.createNewChat.useMutation({
     onSuccess: (res) => {
-      console.log("Chat created successfully");
       SuccessToast("Chat created successfully");
       router.push(`/workspace/${res.id}`);
     },
     onError: (err) => {
       ErrorToast(`Error creating chat: ${err.message}`);
-      console.log("Error creating chat", err);
     },
   });
 

@@ -17,10 +17,8 @@ export default function WorkspaceNav({
   const { mutate: renameFile } = trpc.renameFile.useMutation({
     onSuccess: () => {
       utils.getOneWorkspace.invalidate();
-      console.log("Success");
     },
     onError: (error) => {
-      console.log(error);
       return ErrorToast(`Error: ${error.message}`);
     },
     retry: 3,
