@@ -46,7 +46,7 @@ export const appRouter = router({
           customer: dbUser.stripeCustomerId,
           return_url: billingUrl,
         });
-
+        console.log(stripeSession);
         return { url: stripeSession.url };
       }
       console.log(capitalizeFirstLetter(input.planName));

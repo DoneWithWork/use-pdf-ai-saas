@@ -36,8 +36,6 @@ export async function POST(request: NextRequest) {
       session.subscription as string
     );
 
-    // const planName = subscription.items.data[0]?.price.product as string;
-
     await db.user.update({
       where: {
         id: session.metadata.userId,
@@ -70,12 +68,13 @@ export async function POST(request: NextRequest) {
         ),
       },
     });
+    console.log(subscription);
   }
   if (event.type === "customer.subscription.updated") {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string
     );
-    await db.user.update({
+    const user = await db.user.update({
       where: {
         stripeSubscriptionId: subscription.id,
       },
@@ -86,6 +85,7 @@ export async function POST(request: NextRequest) {
         ),
       },
     });
+    console.log(user);
   }
   // if (event.type === "subscription_schedule.canceled") {
   //   const subscription = await stripe.subscriptions.retrieve(
