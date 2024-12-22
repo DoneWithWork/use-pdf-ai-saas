@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { Metadata } from "next";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -38,4 +39,49 @@ export function ConvertStringToDates<T extends { createdAt: string }>(
 }
 export function capitalizeFirstLetter(plan: string) {
   return plan.charAt(0).toUpperCase() + plan.slice(1).toLowerCase();
+}
+export function constructMetadata({
+  title = "UsePdfAi - the Saas for everyone",
+  description = "Get instant answers from your PDFs with AI-driven chat.",
+  image = "./",
+  icons = "./favicon.ico",
+  noIndex = false,
+}: {
+  title?: string;
+  description?: string;
+  image?: string;
+  icons?: string;
+  noIndex?: boolean;
+}): Metadata {
+  return {
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      images: [
+        {
+          url: image,
+
+          alt: title,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [image],
+      creator: "@usepdfai",
+    },
+    icons,
+    metadataBase: new URL("https://usepdfai.com"),
+    themeColor: "#FFF",
+    ...(noIndex && {
+      robots: {
+        index: false,
+        follow: false,
+      },
+    }),
+  };
 }

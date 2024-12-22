@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import "./globals.css";
 import Provider from "../components/mis/Providers";
 import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
@@ -12,17 +11,20 @@ import { Inter } from "next/font/google";
 import "@mantine/core/styles.css";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
+import { constructMetadata } from "@/lib/utils";
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
 });
-export const metadata: Metadata = {
-  title: "PDF AI",
-  description:
-    "Get instant answers from your PDFs with AI-driven chat. Upload, ask, and discover insights effortlessly.",
-};
+export const metadata = constructMetadata({
+  title: "UsePdfAi - the Saas for everyone",
+  description: "Get instant answers from your PDFs with AI-driven chat.",
+  image: "./",
+  icons: "./favicon.ico",
+  noIndex: false,
+});
 //meta tags
 export default function RootLayout({
   children,
