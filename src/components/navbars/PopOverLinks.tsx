@@ -2,7 +2,6 @@ import { CreditCard, MoonStar, User2 } from "lucide-react";
 import React from "react";
 import { Separator } from "../ui/separator";
 import Link from "next/link";
-import { SheetClose } from "../ui/sheet";
 
 const Links = [
   {
@@ -28,14 +27,12 @@ export default function PopOverLinks() {
         <Separator />
       </Link>
       {Links.map((link, index) => (
-        <SheetClose asChild key={index}>
-          <Link href={`/dashboard/${link.link}`}>
-            <div className=" profile-link pl-3">
-              <link.icon size={20} className="" />
-              <p className="font-semibold">{link.name}</p>
-            </div>
-          </Link>
-        </SheetClose>
+        <Link href={`/dashboard/${link.link}`} key={index}>
+          <div className=" profile-link pl-3">
+            <link.icon size={20} className="" />
+            <p className="font-semibold">{link.name}</p>
+          </div>
+        </Link>
       ))}
     </div>
   );

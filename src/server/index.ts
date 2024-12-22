@@ -498,6 +498,30 @@ export const appRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
+      const subscription = await getUserSubscriptionPlan();
+
+      const plan = PLANS.find((plan) => plan.name === subscription.name);
+      if (!plan) throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      if (input.ids.length > plan.quota) {
+        throw new TRPCError({
+          code: "FORBIDDEN",
+          message:
+            "You have exceeded the number of documents allowed for your plan",
+        });
+      }
+      if (plan.name !== "Pro") {
+        const numberOfWorkspaces = await db.workspace.count({
+          where: {
+            userId,
+          },
+        });
+        if (numberOfWorkspaces > plan.workspaces)
+          throw new TRPCError({
+            code: "FORBIDDEN",
+            message:
+              "You have exceeded the number of workspaces allowed for your plan",
+          });
+      }
       const ids = input.ids;
       const workspace = await db.workspace.create({
         data: {

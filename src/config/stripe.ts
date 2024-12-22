@@ -4,6 +4,8 @@ export const PLANS: PlanType[] = [
     slug: "free",
     quota: 2,
     size: 4,
+    workspaces: 1,
+    questions: 10,
     pagesPerPDF: 5,
     price: {
       amount: 0,
@@ -16,8 +18,10 @@ export const PLANS: PlanType[] = [
   {
     name: "Pro",
     slug: "pro",
-    quota: 100,
+    quota: 200,
     size: 64,
+    questions: 1000,
+    workspaces: 1000,
     pagesPerPDF: 100,
     price: {
       amount: 10,
@@ -31,8 +35,10 @@ export const PLANS: PlanType[] = [
     name: "Student",
     slug: "student",
     size: 16,
-    quota: 25,
-    pagesPerPDF: 25,
+    questions: 100,
+    workspaces: 50,
+    quota: 50,
+    pagesPerPDF: 50,
     price: {
       amount: 5,
       priceIds: {
@@ -47,7 +53,9 @@ type PlanType = {
   name: string;
   size: number;
   slug: string;
+  workspaces: number;
   quota: number;
+  questions: number;
   pagesPerPDF: number;
   price: {
     amount: number;

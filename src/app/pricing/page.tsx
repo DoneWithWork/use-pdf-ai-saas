@@ -59,7 +59,7 @@ export default async function Pricing() {
                         <HelpCircle className="h-4 w-4 text-zinc-500" />
                       </TooltipTrigger>
                       <TooltipContent className="w-80 p-2">
-                        How many PDFs you can upload a month
+                        Maximum number of PDFs you can upload
                       </TooltipContent>
                     </Tooltip>
                   </div>

@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { SuccessToast } from "@/components/mis/Toasts";
 import { Button } from "../ui/button";
 import UploadDocuments from "../documents/UploadDocuments";
+import Loader from "../mis/Loader";
+import UpgradeButton from "../mis/UpgradeButton";
 export default function NewChat() {
   const [opened, { open, close }] = useDisclosure(false);
   const router = useRouter();
@@ -20,7 +22,7 @@ export default function NewChat() {
     retry: 3,
     retryDelay: 1000,
   });
-  const { mutate } = trpc.createNewChat.useMutation({
+  const { mutate, error, isPending, isError } = trpc.createNewChat.useMutation({
     onSuccess: (res) => {
       SuccessToast("Chat created successfully");
       router.push(`/workspace/${res.id}`);
@@ -98,12 +100,30 @@ export default function NewChat() {
             </div>
             <div className="w-full">
               <Button
-                disabled={selectedFiles.length === 0 || isCreating}
+                disabled={
+                  selectedFiles.length === 0 ||
+                  isCreating ||
+                  isPending ||
+                  isError
+                }
                 onClick={() => createChat()}
               >
                 Create Chat
               </Button>
             </div>
+            {isPending && (
+              <div className="w-full flex justify-center items-center">
+                <Loader message="Creating chat" />
+              </div>
+            )}
+            {error && (
+              <>
+                <p className="text-red-500 text-xl font-semibold my-5">
+                  {error.message}
+                </p>
+                <UpgradeButton plan="PRO" />
+              </>
+            )}
           </Drawer.Body>
         </Drawer.Content>
       </Drawer.Root>

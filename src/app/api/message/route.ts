@@ -7,9 +7,11 @@ import { PineconeStore } from "@langchain/pinecone";
 import { initPinecone } from "@/lib/pinecone/pinecone";
 import { openai } from "@/lib/openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
+import { getUserSubscriptionPlan } from "@/lib/stripe";
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const { getUser } = await getKindeServerSession();
+  const subscription = await getUserSubscriptionPlan();
   const user = await getUser();
   const { id: userId } = user;
 
@@ -28,9 +30,22 @@ export const POST = async (req: NextRequest) => {
           id: true,
         },
       },
+      Messages: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
-  console.log(workspaceId);
+
+  const numberOfMessages = workspace?.Messages.length;
+  if (numberOfMessages === subscription?.questions) {
+    return new Response("You have reached your limit of questions", {
+      status: 400,
+    });
+  }
+  console.log(`Number of messages: ${numberOfMessages}`);
+  if (workspace) console.log(workspaceId);
   if (!workspace) return new Response("Workspace not found", { status: 404 });
 
   await db.message.create({
@@ -85,6 +100,7 @@ export const POST = async (req: NextRequest) => {
     take: 6,
   });
 
+  // based on subscription plan, we can limit the number of messages , etc
   const formattedPrevMessages = prevMessage.map((m) => ({
     role: m.isUserMessage ? ("user" as const) : ("assistant" as const),
     content: m.text,

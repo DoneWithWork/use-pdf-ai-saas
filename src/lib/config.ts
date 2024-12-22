@@ -26,6 +26,10 @@ export const price: PricingType[] = [
         tooltip: "Create maximum one workspace",
       },
       {
+        text: "10 questions per workspace",
+        tooltip: "How many questions you can ask in a workspace",
+      },
+      {
         text: "Priority Support",
         tooltip: "Get help when you need it",
         negative: true,
@@ -45,16 +49,20 @@ export const price: PricingType[] = [
         tooltip: "How many pages you can have in a single PDF",
       },
       {
-        text: "32MB PDF size",
+        text: "64MB PDF size",
         tooltip: "How big a PDF can be",
       },
       {
-        text: "GPT-4o mini + GPT-4o",
+        text: "GPT-4o mini",
         tooltip: "Use the latest models from OpenAI",
       },
       {
         text: "Unlimited workspaces",
         tooltip: "Create as many workspaces as you want",
+      },
+      {
+        text: "1000 questions per workspace",
+        tooltip: "How many questions you can ask in a workspace",
       },
       {
         text: "Priority Support",
@@ -71,7 +79,7 @@ export const price: PricingType[] = [
     buttonText: "Get started",
     features: [
       {
-        text: "25 Pages/PDF",
+        text: "50 Pages/PDF",
         tooltip: "How many pages you can have in a single PDF",
       },
       {
@@ -83,8 +91,12 @@ export const price: PricingType[] = [
         tooltip: "Use the GPT-4o mini model",
       },
       {
-        text: "Maximum 50 workspaces",
-        tooltip: "Create multiple workspaces",
+        text: "50 workspaces",
+        tooltip: "Create maximum 50 workspaces",
+      },
+      {
+        text: "100 questions per workspace",
+        tooltip: "How many questions you can ask in a workspace",
       },
       {
         text: "Priority Support",
