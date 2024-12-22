@@ -8,51 +8,62 @@ import { Progress } from "../ui/progress";
 import { shortenFileName } from "@/lib/utils";
 import byteSize from "byte-size";
 import { useFolderId } from "./folder/IndividualFolder";
+import Loader from "../mis/Loader";
 export const OurUploadDropzone = ({ close }: { close: () => void }) => {
   const { folderId } = useFolderId();
   const [files, setFiles] = useState<File[]>([]);
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const utils = trpc.useUtils();
-  const { startUpload } = useUploadThing("documentUploader", {
-    onBeforeUploadBegin: (files) => {
-      const newFiles = files.map((file) => {
-        const name = file.name.split(".").shift();
-        const newFile = new File(
-          [file],
-          name + "-" + Date.now() + "." + file.type.split("/").pop(),
-          {
-            type: file.type,
-          }
-        );
-        setFiles((prevFiles) => [...prevFiles, newFile]);
-        return newFile;
-      });
-      return newFiles;
-    },
-    onUploadBegin: () => {
-      setIsUploading(true);
-    },
-    onUploadError: (error) => {
-      ErrorToast(`Error uploading file: ${error.message}`);
-    },
-    onUploadProgress: (progress) => {
-      setProgress(progress);
-    },
-    onClientUploadComplete: (res) => {
-      setIsUploading(false);
-      close();
-      utils.getSingleFolder.invalidate();
-      utils.getUserFiles.invalidate();
-      console.log(res);
-      utils.getUserDocumentPaginated.invalidate();
-      return SuccessToast("Files uploaded successfully");
-    },
-  });
+  const { data, isLoading } = trpc.returnSubscriptionPlan.useQuery();
+  console.log(data?.name);
+  const { startUpload } = useUploadThing(
+    data?.name === "Free"
+      ? "freePlanUploader"
+      : data?.name === "Pro"
+      ? "proPlanUploader"
+      : "studentPlanUploader",
+    {
+      onBeforeUploadBegin: (files) => {
+        const newFiles = files.map((file) => {
+          const name = file.name.split(".").shift();
+          const newFile = new File(
+            [file],
+            name + "-" + Date.now() + "." + file.type.split("/").pop(),
+            {
+              type: file.type,
+            }
+          );
+          setFiles((prevFiles) => [...prevFiles, newFile]);
+          return newFile;
+        });
+        return newFiles;
+      },
+      onUploadBegin: () => {
+        setIsUploading(true);
+      },
+      onUploadError: (error) => {
+        ErrorToast(`Error uploading file: ${error.message}`);
+      },
+      onUploadProgress: (progress) => {
+        setProgress(progress);
+      },
+      onClientUploadComplete: (res) => {
+        setIsUploading(false);
+        close();
+        utils.getSingleFolder.invalidate();
+        utils.getUserFiles.invalidate();
+        console.log(res);
+        utils.getUserDocumentPaginated.invalidate();
+        return SuccessToast("Files uploaded successfully");
+      },
+    }
+  );
   return (
     <div>
       <Dropzone
         multiple
+        disabled={isLoading}
         onDrop={async (acceptedFiles) => {
           await startUpload(acceptedFiles, { folderId: folderId });
         }}
@@ -65,12 +76,18 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
             <div className="flex items-center justify-center h-full w-full">
               <div className="flex flex-col items-center justify-center w-full h-full rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
                 <div className="flex-center">
-                  <Cloud className="h-6 w-6 text-zinc-500 mb-2" />
-                  <p className="mb-2 text-sm text-zinc-700">
-                    <span className="font-semibold">Click to Upload</span> or
-                    drag and drop
-                  </p>
-                  <p>PDF (up to 4MB)</p>
+                  {isLoading ? (
+                    <Loader message="Checking your subscription plan..." />
+                  ) : (
+                    <>
+                      <Cloud className="h-6 w-6 text-zinc-500 mb-2" />
+                      <p className="mb-2 text-sm text-zinc-700">
+                        <span className="font-semibold">Click to Upload</span>{" "}
+                        or drag and drop
+                      </p>
+                      <p>PDF (up to {data?.size}MB)</p>
+                    </>
+                  )}
                 </div>
 
                 <input

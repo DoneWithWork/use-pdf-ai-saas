@@ -127,6 +127,10 @@ export const appRouter = router({
       });
     }
   }),
+  returnSubscriptionPlan: privateProcedure.query(async () => {
+    const plan = await getUserSubscriptionPlan();
+    return plan;
+  }),
   getSingleFolder: privateProcedure
     .input(z.object({ folderId: z.string() }))
     .query(async ({ ctx, input }) => {
@@ -562,7 +566,7 @@ export const appRouter = router({
         const pageLevelDocs = await loader.load();
         const pages = pageLevelDocs.length;
         const pageCountExceeded = pages > plan.pagesPerPDF;
-        console.log(pageCountExceeded);
+        console.log("Page count exceeded", pageCountExceeded);
         if (pageCountExceeded) {
           await db.file.update({
             data: { vectorStatus: "FAILED" },

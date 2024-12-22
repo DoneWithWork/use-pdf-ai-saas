@@ -3,7 +3,7 @@ import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import { createUploadthing, type FileRouter } from "uploadthing/next";
 import { UploadThingError } from "uploadthing/server";
 import db from "../../../../prisma/db";
-import { z } from "zod";
+import { string, z } from "zod";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { initPinecone } from "@/lib/pinecone/pinecone";
 import { PineconeStore } from "@langchain/pinecone";
@@ -12,119 +12,82 @@ import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
 
 const f = createUploadthing();
+const middleware = async ({
+  req,
+  input,
+}: {
+  req: Request;
+  input: { folderId: string | null };
+}) => {
+  const { getUser } = getKindeServerSession();
+  const user = await getUser();
+  if (!user || !user.id) {
+    throw new UploadThingError("Unauthorized");
+  }
+  const subscriptionPlan = await getUserSubscriptionPlan();
 
+  // check if user has the right subscription plan
+
+  return { userId: user.id, subscriptionPlan, folderId: input.folderId };
+};
+const onUploadComplete = async ({
+  metadata,
+  file,
+}: {
+  metadata: Awaited<ReturnType<typeof middleware>>;
+  file: { key: string; name: string; url: string; size: number };
+}) => {
+  const isFileExists = await db.file.findFirst({
+    where: {
+      key: file.key,
+    },
+  });
+  if (isFileExists) return;
+  const createdFile = await db.file.create({
+    data: {
+      userId: metadata.userId,
+      name: file.name,
+      url: file.url,
+      size: file.size,
+      uploadStatus: "SUCCESS",
+      key: file.key,
+    },
+  });
+  if (metadata.folderId) {
+    await db.folders.update({
+      where: {
+        userId: metadata.userId,
+        id: metadata.folderId,
+      },
+      data: {
+        Files: {
+          connect: {
+            id: createdFile.id,
+          },
+        },
+      },
+    });
+  }
+};
 export const ourFileRouter = {
-  documentUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "16MB" } })
+  freePlanUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "4MB" } })
     .input(z.object({ folderId: z.string().nullable() }))
     .middleware(async ({ req, input }) => {
-      const { getUser } = getKindeServerSession();
-      const user = await getUser();
-      if (!user || !user.id) {
-        if (!user) throw new UploadThingError("Unauthorized");
-      }
-      const subscriptionPlan = await getUserSubscriptionPlan();
-
-      // check if user has the right subscription plan
-
-      return { userId: user.id, subscriptionPlan, folderId: input.folderId };
+      return middleware({ req, input });
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      const createdFile = await db.file.create({
-        data: {
-          userId: metadata.userId,
-          name: file.name,
-          url: file.url,
-          size: file.size,
-          uploadStatus: "SUCCESS",
-          key: file.key,
-        },
-      });
-      if (metadata.folderId) {
-        await db.folders.update({
-          where: {
-            userId: metadata.userId,
-            id: metadata.folderId,
-          },
-          data: {
-            Files: {
-              connect: {
-                id: createdFile.id,
-              },
-            },
-          },
-        });
-      }
-    }),
-  pdfUploader: f({ pdf: { maxFileSize: "4MB" } })
-    .middleware(async ({ req }) => {
-      const { getUser } = getKindeServerSession();
-      const user = await getUser();
-      if (!user || !user.id) {
-        throw new Error("Unauthorized");
-      }
-
-      return { userId: user.id };
+    .onUploadComplete(onUploadComplete),
+  studentPlanUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "16MB" } })
+    .input(z.object({ folderId: z.string().nullable() }))
+    .middleware(async ({ req, input }) => {
+      return middleware({ req, input });
     })
-    .onUploadComplete(async ({ metadata, file }) => {
-      const createdFile = await db.file.create({
-        data: {
-          userId: metadata.userId,
-          name: file.name,
-          url: file.url,
-          size: file.size,
-          uploadStatus: "PROCESSING",
-          key: file.key,
-        },
-      });
-
-      //index the file
-      try {
-        const response = await fetch(file.url);
-        const blob = await response.blob();
-        const loader = new PDFLoader(blob);
-        const pageLevelDocs = await loader.load();
-        const pagesAmount = pageLevelDocs.length;
-
-        // vectorise the pages
-        console.log("Vectorising pages");
-        const pinecone = new PineconeClient();
-        // Will automatically read the PINECONE_API_KEY and PINECONE_ENVIRONMENT env vars
-        const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX!);
-
-        // vectorise the embeddings
-        console.log("Vectorising embeddings");
-        const embeddings = new OpenAIEmbeddings({
-          openAIApiKey: process.env.OPENAI_API_KEY!,
-          model: "text-embedding-3-small",
-        });
-
-        console.log("Uploading to Pinecone");
-        await PineconeStore.fromDocuments(pageLevelDocs, embeddings, {
-          //@ts-expect-error - this is a bug in the pinecone types
-          pineconeIndex,
-          namespace: createdFile.id,
-        });
-        await db.file.update({
-          data: {
-            uploadStatus: "SUCCESS",
-          },
-          where: {
-            id: createdFile.id,
-          },
-        });
-        console.log("done");
-      } catch (error) {
-        console.error("Failed to index file", error);
-        await db.file.update({
-          data: {
-            uploadStatus: "FAILED",
-          },
-          where: {
-            id: createdFile.id,
-          },
-        });
-      }
-    }), //callback when upload is complete
+    .onUploadComplete(onUploadComplete),
+  proPlanUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "64MB" } })
+    .input(z.object({ folderId: z.string().nullable() }))
+    .middleware(async ({ req, input }) => {
+      return middleware({ req, input });
+    })
+    .onUploadComplete(onUploadComplete),
 } satisfies FileRouter;
 
 export type OurFileRouter = typeof ourFileRouter;
