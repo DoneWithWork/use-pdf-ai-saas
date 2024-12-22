@@ -8,6 +8,7 @@ import { initPinecone } from "@/lib/pinecone/pinecone";
 import { openai } from "@/lib/openai";
 import { OpenAIStream, StreamingTextResponse } from "ai";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
+
 export const POST = async (req: NextRequest) => {
   const body = await req.json();
   const { getUser } = await getKindeServerSession();

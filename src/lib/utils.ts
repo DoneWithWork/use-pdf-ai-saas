@@ -76,7 +76,7 @@ export function constructMetadata({
     },
     icons,
     metadataBase: new URL("https://usepdfai.com"),
-    themeColor: "#FFF",
+
     ...(noIndex && {
       robots: {
         index: false,

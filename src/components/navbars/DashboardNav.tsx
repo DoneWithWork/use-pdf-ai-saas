@@ -1,5 +1,5 @@
 "use client";
-import { File, WorkflowIcon } from "lucide-react";
+import { CloudLightningIcon, File, WorkflowIcon } from "lucide-react";
 import Link from "next/link";
 import React from "react";
 import { usePathname } from "next/navigation";
@@ -7,8 +7,16 @@ import { usePathname } from "next/navigation";
 import Logo from "@/public/logo.png";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { getUserSubscriptionPlan } from "@/lib/stripe";
+import UpgradeButton from "../mis/UpgradeButton";
 
-const DashboardNav = ({ children }: { children: React.ReactNode }) => {
+const DashboardNav = ({
+  children,
+  subscription,
+}: {
+  children: React.ReactNode;
+  subscription: Awaited<ReturnType<typeof getUserSubscriptionPlan>>;
+}) => {
   const pathName = usePathname();
   return (
     <div>
@@ -48,6 +56,24 @@ const DashboardNav = ({ children }: { children: React.ReactNode }) => {
               </Link>
             </div>
           </div>
+          {!subscription?.isSubscribed && (
+            <div className="w-full rounded-xl h-52 mx-auto bg-blue-400 px-3 py-4 text-white space-y-4">
+              <div className="flex-row-custom">
+                <p className="font-semibold text-xl text-nowrap">
+                  Need more <span className="">power</span>?
+                </p>
+                <CloudLightningIcon className="text-yellow-300 w-8 h-8" />
+              </div>
+
+              <p className="text-lg text-center">
+                Consider upgrading to{" "}
+                <span className="font-bold text-2xl text-center w-full block">
+                  PRO
+                </span>
+              </p>
+              <UpgradeButton plan="PRO" />
+            </div>
+          )}
           {children}
         </div>
       </nav>

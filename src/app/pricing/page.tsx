@@ -118,7 +118,20 @@ export default async function Pricing() {
                         variant: "secondary",
                       })}
                     >
-                      {user ? "Upgrade Now" : "Get Started"}
+                      Dashboard
+                      <ArrowRight className="h-5 w-5 ml-1.5" />
+                    </Link>
+                  )}
+
+                  {plan.title === "FREE" && !user && (
+                    <Link
+                      href={"/api/auth/login"}
+                      className={buttonVariants({
+                        className: "w-full mx-auto ",
+                        variant: "secondary",
+                      })}
+                    >
+                      Sign up
                       <ArrowRight className="h-5 w-5 ml-1.5" />
                     </Link>
                   )}

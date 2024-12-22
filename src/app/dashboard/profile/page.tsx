@@ -3,7 +3,7 @@ import LogoutButton from "@/components/mis/LogoutButton";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import React from "react";
+import React, { useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,8 +22,10 @@ import { trpc } from "@/app/_trpc/client";
 import { ErrorToast, SuccessToast } from "@/components/mis/Toasts";
 import { useRouter } from "next/navigation";
 import Loader from "@/components/mis/Loader";
+import { Input } from "@/components/ui/input";
 export default function ProfilePage() {
   const router = useRouter();
+  const [canDelete, setCanDelete] = useState(false);
   const { user } = useKindeBrowserClient();
   const { mutate: deleteUser, isPending: isDeleting } =
     trpc.deleteUser.useMutation({
@@ -74,7 +76,7 @@ export default function ProfilePage() {
         <LogoutButton />
       </div>
       <div className=" py-2 mt-4 border-2 border-red-500 rounded-md px-4">
-        <p className="text-2xl text-red-700 font-semibold">
+        <p className="text-2xl my-5 text-red-700 font-semibold">
           Delete Your Account
         </p>
         {isDeleting ? (
@@ -96,6 +98,18 @@ export default function ProfilePage() {
                   your account and remove your data from our servers. If any
                   billings/subscriptions are active they will be cancelled and
                   not refunded.
+                  <Input
+                    className="mt-3 border-red-500 border-2 focus:border-red-600"
+                    type="text"
+                    onChange={(e) => {
+                      if (e.target.value === "DELETE") {
+                        setCanDelete(true);
+                      } else {
+                        setCanDelete(false);
+                      }
+                    }}
+                    placeholder="Type 'DELETE' to confirm"
+                  />
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -107,7 +121,7 @@ export default function ProfilePage() {
                   <Button
                     variant={"destructive"}
                     onClick={() => deleteUser()}
-                    disabled={isDeleting}
+                    disabled={isDeleting || !canDelete}
                   >
                     Delete Account
                   </Button>

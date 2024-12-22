@@ -36,6 +36,7 @@ export default function DeleteDocument({
         SuccessToast("Successfully deleted file/folder");
         utils.getUserDocumentPaginated.invalidate();
         utils.getUserFiles.invalidate();
+        utils.getWorkspaces.invalidate();
       },
       onError: (error) => {
         ErrorToast(error.message);

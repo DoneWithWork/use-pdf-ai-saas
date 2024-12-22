@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
       status: 200,
     });
   }
-
+  console.log(event.type);
   if (event.type === "checkout.session.completed") {
     const subscription = await stripe.subscriptions.retrieve(
       session.subscription as string
@@ -59,6 +59,22 @@ export async function POST(request: NextRequest) {
       session.subscription as string
     );
 
+    await db.user.update({
+      where: {
+        stripeSubscriptionId: subscription.id,
+      },
+      data: {
+        stripePriceId: subscription.items.data[0]?.price.id,
+        stripeCurrentPeriodEnd: new Date(
+          subscription.current_period_end * 1000
+        ),
+      },
+    });
+  }
+  if (event.type === "customer.subscription.updated") {
+    const subscription = await stripe.subscriptions.retrieve(
+      session.subscription as string
+    );
     await db.user.update({
       where: {
         stripeSubscriptionId: subscription.id,
