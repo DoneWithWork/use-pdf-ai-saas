@@ -449,11 +449,11 @@ export const appRouter = router({
       const params = {
         id: user.id,
       };
-      // const deleteSession = await Users.deleteUserSessions({ userId: user.id });
-      // if (deleteSession.code !== "OK") {
-      //   console.log("Error deleting user sessions from kinde api");
-      //   return { success: false };
-      // }
+      const deleteSession = await Users.deleteUserSessions({ userId: user.id });
+      if (deleteSession.code !== "OK") {
+        console.log("Error deleting user sessions from kinde api");
+        return { success: false };
+      }
       const deletedUser = await Users.deleteUser(params);
       if (deletedUser.code !== "OK") {
         console.log("Error deleting user from kinde api");
@@ -465,6 +465,7 @@ export const appRouter = router({
           id: userId,
         },
         select: {
+          stripeSubscriptionId: true,
           File: {
             select: {
               id: true,
@@ -473,9 +474,16 @@ export const appRouter = router({
           },
         },
       });
-      //!!! NEED to remove billing from stripe
+
       const fileIds = deletedUserFromDb.File.map((file) => file.id);
       const fileKeys = deletedUserFromDb.File.map((file) => file.key);
+      if (deletedUserFromDb.stripeSubscriptionId) {
+        await stripe.subscriptions.cancel(
+          deletedUserFromDb.stripeSubscriptionId
+        );
+      } else {
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
       await utapi.deleteFiles(fileKeys);
       if (fileIds.length > 0) {
         const pinecone = new PineconeClient();
