@@ -449,11 +449,12 @@ export const appRouter = router({
       const params = {
         id: user.id,
       };
-      const deleteSession = await Users.deleteUserSessions({ userId: user.id });
-      if (deleteSession.code !== "OK") {
-        console.log("Error deleting user sessions from kinde api");
-        return { success: false };
-      }
+      // const deleteSession = await Users.deleteUserSessions({ userId: user.id });
+      // console.log(deleteSession);
+      // if (deleteSession.code !== "OK") {
+      //   console.log("Error deleting user sessions from kinde api");
+      //   return { success: false };
+      // }
       const deletedUser = await Users.deleteUser(params);
       if (deletedUser.code !== "OK") {
         console.log("Error deleting user from kinde api");
