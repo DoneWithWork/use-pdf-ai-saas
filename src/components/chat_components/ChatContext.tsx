@@ -42,10 +42,13 @@ export const ChatContextProvider = ({
           message,
         }),
       });
+      const pageNumbers =
+        JSON.parse(response?.headers.get("X-Page-Numbers") ?? "[]") || [];
+
       if (!response.ok) {
         throw new Error("Failed to send message");
       }
-      return response.body;
+      return { stream: response.body, pageNumbers: pageNumbers };
     },
     onMutate: async ({ message }) => {
       backUpMessage.current = message;
@@ -78,6 +81,7 @@ export const ChatContextProvider = ({
               id: crypto.randomUUID(),
               text: message,
               isUserMessage: true,
+              pageNumbers: [],
             },
             ...latestPage.messages,
           ];
@@ -94,8 +98,15 @@ export const ChatContextProvider = ({
           previousMessages?.pages.flatMap((page) => page.messages) ?? [],
       };
     },
-    onSuccess: async (stream) => {
+    onSuccess: async ({
+      stream,
+      pageNumbers,
+    }: {
+      stream: ReadableStream<Uint8Array> | null;
+      pageNumbers: string[];
+    }) => {
       setIsloading(false);
+      console.log(pageNumbers);
       if (!stream) return ErrorToast("Failed to send message");
       const reader = stream.getReader();
       const decoder = new TextDecoder();
@@ -133,6 +144,7 @@ export const ChatContextProvider = ({
                       id: "ai-response",
                       text: accResponse,
                       isUserMessage: false,
+                      pageNumbers: [],
                     },
                     ...page.messages,
                   ];
@@ -142,7 +154,7 @@ export const ChatContextProvider = ({
                     if (message.id === "ai-response") {
                       return {
                         ...message,
-                        text: accResponse,
+                        pageNumbers: [],
                       };
                     }
                     return message;

@@ -1,10 +1,18 @@
-import { CloudLightningIcon } from "lucide-react";
-import Link from "next/link";
+import { MenuIcon } from "lucide-react";
 import React, { useState } from "react";
-import Logo from "../../public/logo.png";
-import Image from "next/image";
 import { trpc } from "@/app/_trpc/client";
 import { ErrorToast } from "../mis/Toasts";
+
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import Logo from "../mis/Logo";
+
+import WorkspaceNavOptions from "../WorkspaceNavOptions";
 export default function WorkspaceNav({
   workspaceName = "",
   workspaceId,
@@ -13,6 +21,8 @@ export default function WorkspaceNav({
   workspaceId: string;
 }) {
   const [curName, setCurName] = useState(workspaceName);
+  const [open, setOpen] = useState(false);
+
   const utils = trpc.useUtils();
   const { mutate: renameFile } = trpc.renameFile.useMutation({
     onSuccess: () => {
@@ -28,11 +38,9 @@ export default function WorkspaceNav({
     renameFile({ newName: curName, workspaceId: workspaceId });
   };
   return (
-    <nav className=" bg-white h-16 border-b-2 px-2 flex flex-row justify-between items-center ">
+    <nav className=" bg-white h-16 border-b-2 px-2  py-2 flex flex-row justify-between items-center ">
       <div className="flex-row-custom">
-        <Link href="/dashboard/workspaces" className="block">
-          <Image src={Logo} alt="logo" className="w-32 h-auto" />
-        </Link>
+        <Logo link="/dashboard/workspaces" />
         <input
           type="text"
           placeholder={workspaceName}
@@ -60,15 +68,21 @@ export default function WorkspaceNav({
           className="placeholder:text-lg placeholder:font-semibold px-2 py-1"
         />
       </div>
-      <div>
-        <Link
-          href={"/pricing"}
-          className="font-semibold text-blue-500 flex-row-custom gap-2"
-        >
-          <CloudLightningIcon size={25} className="" />
-          <span>Upgrade</span>
-        </Link>
+
+      <div className="hidden sm:flex flex-row items-center gap-10 ">
+        <WorkspaceNavOptions workspaceId={workspaceId} />
       </div>
+      <Sheet open={open} onOpenChange={setOpen}>
+        <SheetTrigger asChild className="sm:hidden">
+          <MenuIcon size={25} className="cursor-pointer w-6 h-6" />
+        </SheetTrigger>
+        <SheetContent className="w-72">
+          <SheetHeader>
+            <SheetTitle>Options</SheetTitle>
+            <WorkspaceNavOptions workspaceId={workspaceId} />
+          </SheetHeader>
+        </SheetContent>
+      </Sheet>
     </nav>
   );
 }

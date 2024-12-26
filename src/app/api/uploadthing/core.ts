@@ -10,6 +10,7 @@ import { PineconeStore } from "@langchain/pinecone";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { Pinecone as PineconeClient } from "@pinecone-database/pinecone";
 import { getUserSubscriptionPlan } from "@/lib/stripe";
+import randomColor from "randomcolor";
 
 const f = createUploadthing();
 const middleware = async ({
@@ -51,6 +52,7 @@ const onUploadComplete = async ({
       size: file.size,
       uploadStatus: "SUCCESS",
       key: file.key,
+      color: randomColor({ luminosity: "dark" }),
     },
   });
   if (metadata.folderId) {

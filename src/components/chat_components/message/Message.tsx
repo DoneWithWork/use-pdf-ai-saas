@@ -9,6 +9,8 @@ interface MessageProps {
   message: ExtendedMessage;
   isNextMessageSamePerson: boolean;
 }
+import { motion } from "motion/react";
+
 //passing refs from parent to child components
 const Message = forwardRef<HTMLDivElement, MessageProps>(
   ({ message, isNextMessageSamePerson }, ref) => {
@@ -65,7 +67,7 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
             )}
             {message.id !== "loading-message" ? (
               <div
-                className={cn("text-xs select-none mt-2 w-full text-right", {
+                className={cn("text-xs select-none  w-full text-right mt-2", {
                   "text-zinc-500": !message.isUserMessage,
                   "text-blue-300": message.isUserMessage,
                 })}
@@ -73,6 +75,20 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
                 {format(new Date(message.createdAt), "HH:mm")}
               </div>
             ) : null}
+          </div>
+          <div className="flex flex-row gap-1 text-sm w-full justify-end">
+            {message.pageNumbers &&
+              message.pageNumbers.map((pageNum, index) => (
+                <motion.div
+                  transition={{ duration: 0.2 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-gray-200 font-semibold"
+                  key={index}
+                >
+                  <p>{pageNum}</p>
+                </motion.div>
+              ))}
           </div>
         </div>
       </div>

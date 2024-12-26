@@ -6,14 +6,14 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 import ImagePlaceholder from "../public/imagePlaceholder.png";
-import LandingNav from "../components/navbars/LandingNav";
 import Footer from "@/components/mis/Footer";
+import LandingNav from "@/components/navbars/LandingNav";
 
 export default function Home() {
   // const getList = trpc.getList.useQuery();
 
   return (
-    <div className="  h-full w-full">
+    <div className="  h-full w-full ">
       <LandingNav />
       <div className="custom__container h-screen flex flex-col justify-center -translate-y-20 sm:-translate-y-10 md:translate-y-0">
         <h1 className="heading">
@@ -90,7 +90,7 @@ export default function Home() {
       </div>
       <div className="cta custom__container mt-32">
         <h1 className="heading">
-          Make your academic and professional life easier with PDF AI
+          Are you ready to increase your productivity?
         </h1>
         <Button asChild size={"lg"} className="mt-5">
           <RegisterLink className="font-semibold text-xl h-12">

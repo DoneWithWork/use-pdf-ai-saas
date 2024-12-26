@@ -12,6 +12,8 @@ import "@mantine/core/styles.css";
 
 import { ColorSchemeScript, MantineProvider } from "@mantine/core";
 import { constructMetadata } from "@/lib/utils";
+import { GoogleTagManager } from "@next/third-parties/google";
+
 // If loading a variable font, you don't need to specify the font weight
 const inter = Inter({
   subsets: ["latin"],
@@ -33,10 +35,20 @@ export default function RootLayout({
 }>) {
   return (
     <html className={`${inter.variable}`} lang="en" suppressHydrationWarning>
+      <GoogleTagManager gtmId="GTM-THQ97RB5" />
       <head>
         <ColorSchemeScript />
       </head>
       <body className={` antialiased bg-[#ECFAFF]`}>
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-THQ97RB5"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
+
         <MantineProvider>
           <Provider>
             <NextSSRPlugin
@@ -48,6 +60,7 @@ export default function RootLayout({
                */
               routerConfig={extractRouterConfig(ourFileRouter)}
             />
+
             {children}
           </Provider>
         </MantineProvider>

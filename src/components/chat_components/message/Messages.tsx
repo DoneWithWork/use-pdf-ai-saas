@@ -32,6 +32,7 @@ export default function Messages({ workspaceId }: { workspaceId: string }) {
         <Loader2 className="h-4 w-4 animate-spin" />
       </span>
     ),
+    pageNumbers: [],
   };
   const combinedMessages = [
     ...(isAiThinking ? [loadingMessage] : []),

@@ -75,6 +75,7 @@ model File {
   Workspaces Workspace[] @relation("FileWorkspaces")
   Folders    Folders?    @relation(fields: [foldersId], references: [id])
   foldersId  String?
+  color      String      @default("#000000")
 }
 
 model Workspace {
@@ -101,6 +102,7 @@ model Message {
   userId      String?
   Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
   workspaceId String?
+  pageNumbers Int[]      @default([])
 }
 
 enum Plans {

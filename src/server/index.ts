@@ -423,6 +423,7 @@ export const appRouter = router({
           isUserMessage: true,
           createdAt: true,
           text: true,
+          pageNumbers: true,
         },
       });
       console.log(messages);
@@ -435,6 +436,35 @@ export const appRouter = router({
         messages: messages,
         nextCursor: nextCursor,
       };
+    }),
+  exportChat: privateProcedure
+    .input(z.object({ workspaceId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      try {
+        const { userId } = ctx;
+        const messages = await db.message.findMany({
+          where: {
+            workspaceId: input.workspaceId,
+            userId,
+          },
+          select: {
+            text: true,
+            isUserMessage: true,
+            createdAt: true,
+          },
+        });
+        const conversation = messages.map((message) => {
+          return {
+            [message.isUserMessage ? "User" : "AI"]: message.text,
+            time: new Date(message.createdAt).toLocaleString(),
+          };
+        });
+        if (!conversation) throw new TRPCError({ code: "NOT_FOUND" });
+        return conversation;
+      } catch (error) {
+        console.log("Error exporting chat", error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
     }),
   deleteUser: privateProcedure.mutation(async ({ ctx }) => {
     try {
@@ -762,7 +792,14 @@ export const appRouter = router({
         },
         select: {
           name: true,
-          Files: true,
+          Files: {
+            select: {
+              id: true,
+              color: true,
+              name: true,
+              url: true,
+            },
+          },
         },
       });
     }),

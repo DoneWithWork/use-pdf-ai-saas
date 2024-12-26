@@ -83,12 +83,12 @@ export const POST = async (req: NextRequest) => {
 
   // Iterate through vector stores and collect similarity search results
   for (const [fileId, vectorStore] of Object.entries(vectorStores)) {
-    const results = await vectorStore.similaritySearch(message, 4); // Top 4 matches per document
+    const results = await vectorStore.similaritySearch(message, 1); // Top 4 matches per document
     topResults.push(...results.map((result) => ({ ...result, fileId }))); // Attach fileId to results
   }
 
   // Output the final top results
-  console.log("top results: ", topResults);
+  // console.log("top results: ", topResults);
 
   const prevMessage = await db.message.findMany({
     where: {
@@ -98,7 +98,7 @@ export const POST = async (req: NextRequest) => {
     orderBy: {
       createdAt: "asc",
     },
-    take: 6,
+    take: 2,
   });
 
   // based on subscription plan, we can limit the number of messages , etc
@@ -136,9 +136,11 @@ export const POST = async (req: NextRequest) => {
       },
     ],
     max_tokens: 200,
-    temperature: 0,
+    temperature: 0.2,
   });
-
+  console.log(topResults);
+  const pageNumbers = topResults.map((r) => +r.metadata["loc.pageNumber"]);
+  console.log("pageNumbers: ", pageNumbers);
   const stream = OpenAIStream(response, {
     async onCompletion(completion) {
       await db.message.create({
@@ -147,10 +149,15 @@ export const POST = async (req: NextRequest) => {
           isUserMessage: false,
           userId,
           workspaceId,
+          pageNumbers,
         },
       });
     },
   });
 
-  return new StreamingTextResponse(stream);
+  return new StreamingTextResponse(stream, {
+    headers: {
+      "X-Page-Numbers": JSON.stringify(pageNumbers),
+    },
+  });
 };
