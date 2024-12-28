@@ -164,8 +164,9 @@ export const ChatContextProvider = ({
         );
       }
     },
-    onError: (_, __, context) => {
+    onError: (error, __, context) => {
       setMessage(backUpMessage.current);
+      console.error(error);
       utils.getWorkspaceChatMessages.setData(
         { workspaceId },
         { messages: context?.previousMessages ?? [] }

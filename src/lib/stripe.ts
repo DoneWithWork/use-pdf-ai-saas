@@ -45,7 +45,13 @@ export async function getUserSubscriptionPlan() {
   );
 
   const plan = isSubscribed
-    ? PLANS.find((plan) => plan.price.priceIds.test === dbUser.stripePriceId)
+    ? PLANS.find((plan) => {
+        const priceId =
+          process.env.VERCEL_ENV === "production"
+            ? plan.price.priceIds.production
+            : plan.price.priceIds.test;
+        return priceId === dbUser.stripePriceId;
+      })
     : null;
 
   let isCanceled = false;

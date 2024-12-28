@@ -14,6 +14,7 @@ export const PLANS: PlanType[] = [
         production: "",
       },
     },
+    similarNumber: 2,
   },
   {
     name: "Pro",
@@ -27,9 +28,10 @@ export const PLANS: PlanType[] = [
       amount: 10,
       priceIds: {
         test: "price_1QR9rz051qkB6Ei3jjmD4WD9",
-        production: "",
+        production: "price_1QYW2k051qkB6Ei3Lar1SSYl",
       },
     },
+    similarNumber: 3,
   },
   {
     name: "Student",
@@ -43,9 +45,10 @@ export const PLANS: PlanType[] = [
       amount: 5,
       priceIds: {
         test: "price_1QYUZk051qkB6Ei34wtn2f5N",
-        production: "",
+        production: "price_1QYW37051qkB6Ei3ddnZFbGF",
       },
     },
+    similarNumber: 2,
   },
 ];
 
@@ -64,4 +67,5 @@ type PlanType = {
       production: string;
     };
   };
+  similarNumber: number;
 };

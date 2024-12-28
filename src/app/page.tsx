@@ -5,7 +5,7 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-import ImagePlaceholder from "../public/imagePlaceholder.png";
+import landing from "../public/landing.png";
 import Footer from "@/components/mis/Footer";
 import LandingNav from "@/components/navbars/LandingNav";
 
@@ -25,11 +25,11 @@ export default function Home() {
           and discover insights effortlessly.
         </p>
         <Image
-          src={ImagePlaceholder}
+          src={landing}
           alt="image"
           width={1000}
           height={1300}
-          className="aspect-video mt-4"
+          className="aspect-video mt-4 "
         />
       </div>
       <div className="custom__container mt-32">
@@ -39,7 +39,7 @@ export default function Home() {
           precise answers, and uncover insights seamlessly
         </p>
         <Image
-          src={ImagePlaceholder}
+          src={landing}
           alt="image"
           width={1000}
           height={1200}
@@ -53,7 +53,7 @@ export default function Home() {
           precise answers, and uncover insights seamlessly
         </p>
         <Image
-          src={ImagePlaceholder}
+          src={landing}
           alt="image"
           width={1000}
           height={1200}
@@ -67,28 +67,28 @@ export default function Home() {
           enhance productivity with a seamless document library.
         </p>
         <Image
-          src={ImagePlaceholder}
+          src={landing}
           alt="image"
           width={1000}
           height={1200}
           className="aspect-video mt-4"
         />
       </div>
-      <div className="custom__container mt-32">
+      {/* <div className="custom__container mt-32">
         <h1 className="heading">The Tool You Need</h1>
         <p className="heading__description">
           Easily manage and organize all your documents—eliminate clutter and
           enhance productivity with a seamless document library.
         </p>
         <Image
-          src={ImagePlaceholder}
+          src={landing}
           alt="image"
           width={1000}
           height={1200}
           className="aspect-video mt-4"
         />
-      </div>
-      <div className="cta custom__container mt-32">
+      </div> */}
+      <div className="cta custom__container my-32">
         <h1 className="heading">
           Are you ready to increase your productivity?
         </h1>

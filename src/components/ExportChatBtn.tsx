@@ -33,9 +33,8 @@ export default function ExportChatBtn({
         a.click();
         URL.revokeObjectURL(url);
       }
-    } catch (error) {
-      console.error("Error downloading messages:", error);
-    }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    } catch (error) {}
   };
   return (
     <Button

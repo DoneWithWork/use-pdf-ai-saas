@@ -90,35 +90,26 @@ model Workspace {
 }
 
 model Message {
-  id            String   @id @default(cuid())
-  text          String   @db.Text()
+  id            String     @id @default(cuid())
+  text          String
   isUserMessage Boolean
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-
-  chatId String?
-  File   File[]
-
-  User        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String?
-  Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
-  workspaceId String?
-
-  PageFiles PageFile[] // New relation
+  userId        String?
+  workspaceId   String?
+  PageFiles     PageFile[] // Relationship with PageFile
+  User          User?      @relation(fields: [userId], references: [id])
+  File          File?      @relation(fields: [fileId], references: [id])
+  fileId        String?
+  Workspace     Workspace? @relation(fields: [workspaceId], references: [id])
+  createdAt     DateTime   @default(now())
 }
 
 model PageFile {
   id         String  @id @default(cuid())
-  pageNumber Int
-  File       File    @relation(fields: [fileId], references: [id], onDelete: Cascade)
   fileId     String
-  Message    Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  pageNumber Int
   messageId  String
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-
-  @@unique([pageNumber, fileId, messageId]) // Ensure no duplicate entries
+  Message    Message @relation(fields: [messageId], references: [id])
+  File       File    @relation(fields: [fileId], references: [id]) // Relation to File model
 }
 
 enum Plans {

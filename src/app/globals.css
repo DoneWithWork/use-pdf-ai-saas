@@ -76,6 +76,9 @@
   .custom__container {
     @apply max-w-[1300px] mx-auto flex flex-col items-center  px-2;
   }
+  .custom__container img {
+    @apply rounded-xl;
+  }
   .heading__description {
     @apply max-w-[50ch] text-center mt-5 text-sm sm:text-xl leading-tight;
   }
@@ -86,7 +89,7 @@
     @apply text-lg sm:text-xl md:text-2xl lg:text-4xl font-semibold;
   }
   .activeDoc {
-    @apply bg-gray-200 rounded-xl;
+    @apply bg-gray-200 rounded-md;
   }
   .important_text {
     @apply font-[600];

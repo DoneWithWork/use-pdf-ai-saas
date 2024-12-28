@@ -38,12 +38,11 @@ export default function NewFolder() {
     isPending,
   } = trpc.createFolder.useMutation({
     onSuccess: () => {
-      console.log("Success");
+      ("Success");
       utils.getUserDocumentPaginated.invalidate();
       return SuccessToast("Folder created successfully");
     },
     onError: (error) => {
-      console.log(error);
       return ErrorToast(`Error: ${error.message}`);
     },
     retry: 3,
@@ -64,8 +63,6 @@ export default function NewFolder() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     createFolder({ name: values.name });
-
-    console.log(values);
   }
   return (
     <Sheet open={open} onOpenChange={setOpen}>

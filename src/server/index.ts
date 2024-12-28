@@ -26,9 +26,8 @@ export const appRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
-      console.log("hi");
+
       const billingUrl = absoluteUrl("/dashboard/billing");
-      console.log(billingUrl);
       if (!userId) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       const dbUser = await db.user.findFirst({
@@ -40,16 +39,14 @@ export const appRouter = router({
       if (!dbUser) throw new TRPCError({ code: "UNAUTHORIZED" });
 
       const subscriptionPlan = await getUserSubscriptionPlan();
-      console.log(subscriptionPlan);
       if (subscriptionPlan.isSubscribed && dbUser.stripeCustomerId) {
         const stripeSession = await stripe.billingPortal.sessions.create({
           customer: dbUser.stripeCustomerId,
           return_url: billingUrl,
         });
-        console.log(stripeSession);
         return { url: stripeSession.url };
       }
-      console.log(capitalizeFirstLetter(input.planName));
+      capitalizeFirstLetter(input.planName);
       //user is not subscribe, allow them to buy the product
       const stripeSession = await stripe.checkout.sessions.create({
         success_url: billingUrl,
@@ -69,7 +66,6 @@ export const appRouter = router({
           userId: userId,
         },
       });
-      console.log(stripeSession);
       return { url: stripeSession.url };
     }),
   getList: publicProcedure.query(async () => {
@@ -95,8 +91,7 @@ export const appRouter = router({
     try {
       const { getUser } = getKindeServerSession();
       const user = await getUser();
-      console.log("hi");
-      console.log(user);
+
       if (!user) {
         throw new TRPCError({ code: "UNAUTHORIZED" });
       }
@@ -108,7 +103,7 @@ export const appRouter = router({
           id: user.id,
         },
       });
-      console.log(":hi");
+
       if (!dbUser) {
         await db.user.create({
           data: {
@@ -119,7 +114,6 @@ export const appRouter = router({
       }
       return { success: true };
     } catch (error) {
-      console.log("Error in authCallback", error);
       throw new TRPCError({
         code: error instanceof TRPCError ? error.code : "INTERNAL_SERVER_ERROR",
         message:
@@ -263,7 +257,7 @@ export const appRouter = router({
             },
           },
         });
-        console.log(folder);
+
         if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
         //return true if the folder has any linked documents
         const hasWorkspaceLinkedDocuments = folder.Files.length > 0;
@@ -336,7 +330,7 @@ export const appRouter = router({
               Files: true,
             },
           });
-          console.log(folder);
+
           if (!folder) throw new TRPCError({ code: "NOT_FOUND" });
           if (folder.Files.length > 0) {
             throw new TRPCError({ code: "BAD_REQUEST" });
@@ -425,7 +419,6 @@ export const appRouter = router({
           text: true,
           PageFiles: {
             select: {
-              fileId: true,
               pageNumber: true,
               File: {
                 select: {
@@ -436,7 +429,7 @@ export const appRouter = router({
           },
         },
       });
-      console.log(messages);
+
       let nextCursor: typeof cursor | undefined = undefined;
       if (messages.length > limit) {
         const nextItem = messages.pop();
@@ -471,8 +464,8 @@ export const appRouter = router({
         });
         if (!conversation) throw new TRPCError({ code: "NOT_FOUND" });
         return conversation;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
-        console.log("Error exporting chat", error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
@@ -534,8 +527,8 @@ export const appRouter = router({
       }
 
       return { success: true };
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
-      console.log("Error deleting user", error);
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     }
   }),
@@ -714,7 +707,7 @@ export const appRouter = router({
       const failedFile = workspace.Files.some(
         (file) => file.vectorStatus === "FAILED"
       );
-      console.log(failedFile);
+
       if (failedFile) {
         return { status: "FAILED" as const };
       }
