@@ -58,7 +58,9 @@ export const appRouter = router({
           {
             price: PLANS.find(
               (plan) => plan.name === capitalizeFirstLetter(input.planName)
-            )?.price.priceIds.test,
+            )?.price.priceIds[
+              process.env.VERCEL_ENV === "production" ? "production" : "test"
+            ],
             quantity: 1,
           },
         ],
