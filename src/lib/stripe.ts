@@ -3,10 +3,15 @@ import db from "../../prisma/db";
 import { getKindeServerSession } from "@kinde-oss/kinde-auth-nextjs/server";
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2024-12-18.acacia",
-  typescript: true,
-});
+export const stripe = new Stripe(
+  process.env.VERCEL_ENV == "production"
+    ? process.env.STRIPE_SECRET_LIVE_KEY ?? ""
+    : process.env.STRIPE_SECRET_KEY ?? "",
+  {
+    apiVersion: "2024-12-18.acacia",
+    typescript: true,
+  }
+);
 
 export async function getUserSubscriptionPlan() {
   const { getUser } = getKindeServerSession();
