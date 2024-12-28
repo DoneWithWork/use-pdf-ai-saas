@@ -423,7 +423,17 @@ export const appRouter = router({
           isUserMessage: true,
           createdAt: true,
           text: true,
-          pageNumbers: true,
+          PageFiles: {
+            select: {
+              fileId: true,
+              pageNumber: true,
+              File: {
+                select: {
+                  color: true,
+                },
+              },
+            },
+          },
         },
       });
       console.log(messages);

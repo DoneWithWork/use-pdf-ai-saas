@@ -76,6 +76,7 @@ model File {
   Folders    Folders?    @relation(fields: [foldersId], references: [id])
   foldersId  String?
   color      String      @default("#000000")
+  PageFile   PageFile[]
 }
 
 model Workspace {
@@ -95,14 +96,29 @@ model Message {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  chatId      String?
-  File        File?      @relation(fields: [fileId], references: [id])
-  fileId      String?
+  chatId String?
+  File   File[]
+
   User        User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      String?
   Workspace   Workspace? @relation(fields: [workspaceId], references: [id])
   workspaceId String?
-  pageNumbers Int[]      @default([])
+
+  PageFiles PageFile[] // New relation
+}
+
+model PageFile {
+  id         String  @id @default(cuid())
+  pageNumber Int
+  File       File    @relation(fields: [fileId], references: [id], onDelete: Cascade)
+  fileId     String
+  Message    Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId  String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
+
+  @@unique([pageNumber, fileId, messageId]) // Ensure no duplicate entries
 }
 
 enum Plans {

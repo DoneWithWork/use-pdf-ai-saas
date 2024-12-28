@@ -139,8 +139,13 @@ export const POST = async (req: NextRequest) => {
     temperature: 0.2,
   });
   console.log(topResults);
-  const pageNumbers = topResults.map((r) => +r.metadata["loc.pageNumber"]);
-  console.log("pageNumbers: ", pageNumbers);
+  const references = topResults.map((r) => {
+    return {
+      fileId: r.fileId,
+      pageNumber: +r.metadata["loc.pageNumber"],
+    };
+  });
+
   const stream = OpenAIStream(response, {
     async onCompletion(completion) {
       await db.message.create({
@@ -149,15 +154,19 @@ export const POST = async (req: NextRequest) => {
           isUserMessage: false,
           userId,
           workspaceId,
-          pageNumbers,
+          PageFiles: {
+            create: references.map((ref) => ({
+              pageNumber: ref.pageNumber,
+              fileId: ref.fileId,
+            })),
+          },
+        },
+        include: {
+          PageFiles: true,
         },
       });
-    },
+    }, // links the file ids references to the page numbers
   });
 
-  return new StreamingTextResponse(stream, {
-    headers: {
-      "X-Page-Numbers": JSON.stringify(pageNumbers),
-    },
-  });
+  return new StreamingTextResponse(stream);
 };

@@ -91,7 +91,7 @@ export default function NewChat() {
                   <FileText size={50} className="w-10 h-10" />
                   <div>
                     <p className="text-ellipsis ">
-                      {shortenName(file.name, 20)}
+                      {shortenName(file.name, 30)}
                     </p>
                     <p>{byteSize(file.size).toString()}</p>
                   </div>

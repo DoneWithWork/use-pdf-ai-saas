@@ -130,14 +130,14 @@ export default function WorkSpace({
             {workspace?.Files.map((file, index) => (
               <div
                 key={index}
-                className="flex flex-col items-center justify-center "
+                className="flex flex-col items-center justify-center relative"
               >
                 <div
                   onClick={() => setCurSelectedFile(file.id)}
                   className={cn(
                     curSelectedFile === file.id
                       ? "activeDoc"
-                      : "hover:bg-gray-100",
+                      : "hover:bg-gray-100 bg-gray-50",
                     "mb-5 px-4 py-4 duration-200 transition-all cursor-pointer  rounded-xl"
                   )}
                 >
@@ -146,6 +146,10 @@ export default function WorkSpace({
                 <p className="sm:text-sm font-semibold mb-2 text-xs">
                   {shortenName(file.name, 10)}
                 </p>
+                <div
+                  className={`rounded-full w-5 h-5 flex items-center justify-center font-semibold absolute top-0 right-0 -translate-y-1/2`}
+                  style={{ backgroundColor: file.color }}
+                ></div>
               </div>
             ))}
           </Suspense>

@@ -77,16 +77,17 @@ const Message = forwardRef<HTMLDivElement, MessageProps>(
             ) : null}
           </div>
           <div className="flex flex-row gap-1 text-sm w-full justify-end">
-            {message.pageNumbers &&
-              message.pageNumbers.map((pageNum, index) => (
+            {message.PageFiles &&
+              message.PageFiles.map((page, index) => (
                 <motion.div
                   transition={{ duration: 0.2 }}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="bg-blue-500 rounded-full w-6 h-6 flex items-center justify-center text-gray-200 font-semibold"
+                  className="rounded-full w-6 h-6 flex items-center justify-center text-gray-200 font-semibold"
+                  style={{ backgroundColor: page.File.color }}
                   key={index}
                 >
-                  <p>{pageNum}</p>
+                  <p>{page.pageNumber}</p>
                 </motion.div>
               ))}
           </div>

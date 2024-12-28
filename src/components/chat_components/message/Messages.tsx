@@ -33,6 +33,7 @@ export default function Messages({ workspaceId }: { workspaceId: string }) {
       </span>
     ),
     pageNumbers: [],
+    PageFiles: [],
   };
   const combinedMessages = [
     ...(isAiThinking ? [loadingMessage] : []),
