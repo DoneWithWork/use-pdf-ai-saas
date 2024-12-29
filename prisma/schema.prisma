@@ -30,6 +30,8 @@ model User {
 
   Folders        Folders[]
   subscriptionId String?
+  firstTour      Boolean   @default(false)
+  secondTour     Boolean   @default(false)
 }
 
 enum UploadStatus {

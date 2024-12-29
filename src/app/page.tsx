@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 
 import landing from "../public/landing.png";
 import Footer from "@/components/mis/Footer";
+
 import LandingNav from "@/components/navbars/LandingNav";
 
 export default function Home() {
@@ -15,8 +16,9 @@ export default function Home() {
   return (
     <div className="  h-full w-full ">
       <LandingNav />
+
       <div className="custom__container h-screen flex flex-col justify-center -translate-y-20 sm:-translate-y-10 md:translate-y-0">
-        <h1 className="heading">
+        <h1 className="heading" id="tour1-step2">
           Smart Answers from Your PDFs, Simplified and{" "}
           <span className="text-primary font-extrabold underline">Instant</span>
         </h1>

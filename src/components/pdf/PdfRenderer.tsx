@@ -67,9 +67,12 @@ const PdfRenderer = ({ url }: { url: string }) => {
     setValue("page", String(page));
   };
   return (
-    <div className="w-full bg-white rounded-md shadow flex flex-col items-center max-h-screen h-full ">
+    <div
+      className="w-full bg-white rounded-md shadow flex flex-col items-center max-h-screen h-full "
+      id="secondtour-1"
+    >
       <div className="h-14 w-full border-b z-10 border-zinc-200 flex items-center justify-between px-2">
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5" id="secondtour-2">
           <Button
             variant={"ghost"}
             disabled={curPage === 1}
@@ -113,7 +116,7 @@ const PdfRenderer = ({ url }: { url: string }) => {
             <ChevronUp className="h-4 w-4" />
           </Button>
         </div>
-        <div className="space-x-2">
+        <div className="space-x-2" id="secondtour-3">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button className="gap-1.5" aria-label="zoom" variant={"ghost"}>

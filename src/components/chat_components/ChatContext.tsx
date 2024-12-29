@@ -2,7 +2,6 @@ import { trpc } from "@/app/_trpc/client";
 import { INFINITE_QUERY_LIMIT } from "@/config/infinite-query";
 import { useMutation } from "@tanstack/react-query";
 import React, { createContext, useRef, useState } from "react";
-import { ErrorToast } from "../mis/Toasts";
 
 //the type
 type StreamResponse = {
@@ -42,8 +41,10 @@ export const ChatContextProvider = ({
           message,
         }),
       });
-
-      return { stream: response.body };
+      if (!response.ok) {
+        throw new Error("Failed to send message");
+      }
+      return response.body;
     },
     onMutate: async ({ message }) => {
       backUpMessage.current = message;
@@ -93,43 +94,43 @@ export const ChatContextProvider = ({
           previousMessages?.pages.flatMap((page) => page.messages) ?? [],
       };
     },
-    onSuccess: async ({
-      stream,
-    }: {
-      stream: ReadableStream<Uint8Array> | null;
-    }) => {
+    onSuccess: async (stream) => {
       setIsloading(false);
-      if (!stream) return ErrorToast("Failed to send message");
+
+      if (!stream) {
+        console.log("No stream");
+        return;
+      }
+
       const reader = stream.getReader();
       const decoder = new TextDecoder();
       let done = false;
 
-      //accumulated responce
+      // accumulated response
       let accResponse = "";
 
       while (!done) {
         const { value, done: doneReading } = await reader.read();
         done = doneReading;
         const chunkValue = decoder.decode(value);
+
         accResponse += chunkValue;
 
-        //append chunk to actual message
+        // append chunk to the actual message
         utils.getWorkspaceChatMessages.setInfiniteData(
-          {
-            workspaceId,
-            limit: INFINITE_QUERY_LIMIT,
-          },
+          { workspaceId, limit: INFINITE_QUERY_LIMIT },
           (old) => {
             if (!old) return { pages: [], pageParams: [] };
+
             const isAiResponseCreated = old.pages.some((page) =>
               page.messages.some((message) => message.id === "ai-response")
             );
+
             const updatedPages = old.pages.map((page) => {
-              // on the first page and contains the last message
               if (page === old.pages[0]) {
                 let updatedMessages;
+
                 if (!isAiResponseCreated) {
-                  //create new ref
                   updatedMessages = [
                     {
                       createdAt: new Date().toISOString(),
@@ -141,24 +142,27 @@ export const ChatContextProvider = ({
                     ...page.messages,
                   ];
                 } else {
-                  //update the last message
                   updatedMessages = page.messages.map((message) => {
                     if (message.id === "ai-response") {
                       return {
                         ...message,
-                        PageFiles: [],
+                        text: accResponse,
+                        PageFiles: message.PageFiles || [],
                       };
                     }
                     return message;
                   });
                 }
+
                 return {
                   ...page,
                   messages: updatedMessages,
                 };
               }
+
               return page;
             });
+
             return { ...old, pages: updatedPages };
           }
         );

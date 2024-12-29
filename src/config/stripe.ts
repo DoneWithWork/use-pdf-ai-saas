@@ -15,6 +15,7 @@ export const PLANS: PlanType[] = [
       },
     },
     similarNumber: 2,
+    maxTokens: 150,
   },
   {
     name: "Pro",
@@ -32,6 +33,7 @@ export const PLANS: PlanType[] = [
       },
     },
     similarNumber: 3,
+    maxTokens: 200,
   },
   {
     name: "Student",
@@ -49,6 +51,7 @@ export const PLANS: PlanType[] = [
       },
     },
     similarNumber: 2,
+    maxTokens: 200,
   },
 ];
 
@@ -68,4 +71,5 @@ type PlanType = {
     };
   };
   similarNumber: number;
+  maxTokens?: number;
 };

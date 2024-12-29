@@ -128,7 +128,7 @@ export default function NewChat() {
         </Drawer.Content>
       </Drawer.Root>
 
-      <Button onClick={open} className="mt-4 sm:mt-0">
+      <Button onClick={open} className="mt-4 sm:mt-0" id="newchatbtn">
         <div className="flex flex-row gap-1 items-center">
           <Plus size={25} />
           <span>New Chat</span>

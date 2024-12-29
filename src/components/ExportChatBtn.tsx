@@ -38,6 +38,7 @@ export default function ExportChatBtn({
   };
   return (
     <Button
+      id="secondtour-7"
       onClick={() => downloadMessages()}
       disabled={isLoading}
       className=""

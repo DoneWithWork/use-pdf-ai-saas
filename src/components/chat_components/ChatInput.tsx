@@ -53,7 +53,10 @@ const ChatInput = ({ isDisabled, files }: ChatInputProps) => {
         </motion.div>
       )}
       <div className="">
-        <div className="mx-2 flex flex-row gap-3 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
+        <div
+          className="mx-2 flex flex-row gap-3 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl"
+          id="secondtour-8"
+        >
           <div className="relative flex h-full flex-1 items-stretch md:flex-col">
             <div className="relative flex flex-col w-full flex-grow p-4">
               <div className="relative">
@@ -65,16 +68,16 @@ const ChatInput = ({ isDisabled, files }: ChatInputProps) => {
                   autoFocus
                   onChange={(event) => {
                     handleInputChange(event);
-                    const value = event.target.value;
+                    // const value = event.target.value;
 
-                    const words = value.split(" ");
-                    const lastWord = words.pop();
-                    const containsAt = lastWord && lastWord.charAt(0) === "@";
-                    if (containsAt) {
-                      setPopUpSuggestions(true);
-                    } else {
-                      setPopUpSuggestions(false);
-                    }
+                    // const words = value.split(" ");
+                    // const lastWord = words.pop();
+                    // const containsAt = lastWord && lastWord.charAt(0) === "@";
+                    // if (containsAt) {
+                    //   setPopUpSuggestions(true);
+                    // } else {
+                    //   setPopUpSuggestions(false);
+                    // }
                   }}
                   value={message}
                   onKeyDown={(e) => {

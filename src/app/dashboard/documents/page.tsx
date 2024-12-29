@@ -27,10 +27,13 @@ export default function Documents() {
 
   return (
     <div className="w-full h-full flex flex-col wrapper">
-      <div className="p-5 flex flex-row items-center justify-between flex-wrap">
+      <div
+        id="docspage"
+        className="p-5 flex flex-row items-center justify-between flex-wrap"
+      >
         <h1 className="title">Documents</h1>
 
-        <div className="flex flex-row gap-3 items-center">
+        <div className="flex flex-row gap-3 items-center" id="firstTour-6">
           <NewFolder />
           <UploadDocuments />
         </div>

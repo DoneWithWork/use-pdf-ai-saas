@@ -401,6 +401,59 @@ export const appRouter = router({
 
       //delete embeddings
     }),
+  checkUserTour: privateProcedure.query(async ({ ctx }) => {
+    const { userId } = ctx;
+    const user = await db.user.findFirst({
+      where: {
+        id: userId,
+      },
+      select: {
+        firstTour: true,
+        secondTour: true,
+      },
+    });
+    if (!user) {
+      throw new TRPCError({ code: "NOT_FOUND" });
+    }
+    return user;
+  }),
+  setUserTour: privateProcedure
+    .input(
+      z.object({
+        firstTour: z.boolean().nullable(),
+        secondTour: z.boolean().nullable(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const { userId } = ctx;
+
+      // Construct the data object dynamically
+      const dataToUpdate: Record<string, boolean | null> = {};
+      if (input.firstTour !== undefined && input.firstTour !== null) {
+        dataToUpdate.firstTour = input.firstTour;
+      }
+      if (input.secondTour !== undefined && input.secondTour !== null) {
+        dataToUpdate.secondTour = input.secondTour;
+      }
+
+      if (Object.keys(dataToUpdate).length === 0) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "No valid fields to update.",
+        });
+      }
+
+      const user = await db.user.update({
+        where: {
+          id: userId,
+        },
+        data: dataToUpdate,
+      });
+
+      if (!user) {
+        throw new TRPCError({ code: "NOT_FOUND" });
+      }
+    }),
   //need to get accoding to chat history
   getWorkspaceChatMessages: privateProcedure
     .input(

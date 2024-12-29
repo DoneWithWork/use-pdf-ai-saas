@@ -11,6 +11,7 @@ import WorkspaceNav from "@/components/chat_components/WorkspaceNav";
 import Loader from "@/components/mis/Loader";
 import { ErrorToast } from "@/components/mis/Toasts";
 import { Slide, toast } from "react-toastify";
+import { useNextStep } from "nextstepjs";
 const PdfViewerComponent = dynamic(
   () => import("../../../../components/pdf/PdfRenderer"),
   {
@@ -67,7 +68,22 @@ export default function WorkSpace({
     };
     fetchWorkspaceId();
   }, [params]);
+  const { startNextStep } = useNextStep();
 
+  const { data } = trpc.checkUserTour.useQuery(undefined, {
+    refetchInterval: (data) => {
+      if (data.state.data?.secondTour === true) return false;
+      else return 1000;
+    },
+  });
+  useEffect(() => {
+    const onClickHandler = (tourName: string) => {
+      startNextStep(tourName);
+    };
+    if (data?.secondTour === false) {
+      onClickHandler("secondTour");
+    }
+  }, [data, startNextStep]);
   // Set the default selected file and vectorise documents
   useEffect(() => {
     if (workspace && workspaceId) {
@@ -123,7 +139,10 @@ export default function WorkSpace({
           />
         </div>
         {/* Display currently selected PDF  */}
-        <div className="w-full md:w-32 px-2  flex flex-row md:flex-col items-center md:justify-center gap-10  bg-white overflow-x-auto ">
+        <div
+          className="w-full md:w-32 px-2  flex flex-row md:flex-col items-center md:justify-center gap-10  bg-white overflow-x-auto "
+          id="secondtour-5"
+        >
           <Suspense
             fallback={<Loader2 className="my-24 h-6 w-6 animate-spin" />}
           >
@@ -131,6 +150,7 @@ export default function WorkSpace({
               <div
                 key={index}
                 className="flex flex-col items-center justify-center relative"
+                id={`${index === 0 ? "secondtour-6" : ""}`}
               >
                 <div
                   onClick={() => setCurSelectedFile(file.id)}

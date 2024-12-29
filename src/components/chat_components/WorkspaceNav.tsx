@@ -42,6 +42,7 @@ export default function WorkspaceNav({
       <div className="flex-row-custom">
         <Logo link="/dashboard/workspaces" />
         <input
+          id="secondtour-4"
           type="text"
           placeholder={workspaceName}
           value={curName}

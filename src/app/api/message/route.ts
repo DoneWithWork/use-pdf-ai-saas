@@ -12,6 +12,7 @@ import { getUserSubscriptionPlan } from "@/lib/stripe";
 export const POST = async (req: NextRequest) => {
   try {
     const body = await req.json();
+
     const { getUser } = await getKindeServerSession();
     const subscription = await getUserSubscriptionPlan();
     const user = await getUser();
@@ -84,7 +85,10 @@ export const POST = async (req: NextRequest) => {
 
     // Iterate through vector stores and collect similarity search results
     for (const [fileId, vectorStore] of Object.entries(vectorStores)) {
-      const results = await vectorStore.similaritySearch(message, 2); // Top 4 matches per document
+      const results = await vectorStore.similaritySearch(
+        message,
+        subscription.quota || 2
+      ); // Top 4 matches per document
       topResults.push(...results.map((result) => ({ ...result, fileId }))); // Attach fileId to results
     }
 
@@ -118,7 +122,7 @@ export const POST = async (req: NextRequest) => {
         },
         {
           role: "user",
-          content: `Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format. \nIf you don't know the answer, just say that you don't know, don't try to make up an answer.
+          content: `Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format. \nIf you don't know the answer, just say that you are not sure, don't try to make up an answer.
           
     \n----------------\n
     
@@ -136,7 +140,7 @@ export const POST = async (req: NextRequest) => {
     USER INPUT: ${message}`,
         },
       ],
-      max_tokens: 200,
+      max_tokens: subscription.maxTokens || 200,
       temperature: 0.2,
     });
     console.log(topResults);

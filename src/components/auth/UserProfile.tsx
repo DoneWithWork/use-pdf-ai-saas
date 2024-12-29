@@ -18,7 +18,10 @@ export default async function UserProfile() {
   return (
     <Popover>
       <PopoverTrigger className="w-full  hover:bg-blue-400 transition-all rounded-xl">
-        <div className="flex flex-row justify-between items-center mx-2 my-1 ">
+        <div
+          className="flex flex-row justify-between items-center mx-2 my-1 "
+          id="firstTour-5"
+        >
           <div className="flex flex-row items-center gap-2">
             {user?.picture ? (
               <Image
