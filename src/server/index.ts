@@ -120,6 +120,7 @@ export const appRouter = router({
         //send the email here
         const { error } = await resend.emails.send({
           from: "welcome@usepdfai.com",
+
           to: newUser.email,
           subject: "⚡⚡ Welcome to UsePDFAi ⚡⚡",
           react: WelcomeEmail({}),
@@ -131,6 +132,7 @@ export const appRouter = router({
 
       return { success: true };
     } catch (error) {
+      console.log(error);
       throw new TRPCError({
         code: error instanceof TRPCError ? error.code : "INTERNAL_SERVER_ERROR",
         message:

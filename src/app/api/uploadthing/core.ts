@@ -26,7 +26,16 @@ const middleware = async ({
     throw new UploadThingError("Unauthorized");
   }
   const subscriptionPlan = await getUserSubscriptionPlan();
-
+  const fileCount = await db.file.count({
+    where: {
+      userId: user.id,
+    },
+  });
+  console.log(subscriptionPlan.quota, fileCount);
+  if (fileCount >= subscriptionPlan.quota) {
+    console.log("You have reached your file limit");
+    throw new UploadThingError("You have reached your file limit");
+  }
   // check if user has the right subscription plan
 
   return { userId: user.id, subscriptionPlan, folderId: input.folderId };
@@ -55,6 +64,7 @@ const onUploadComplete = async ({
       color: randomColor({ luminosity: "dark" }),
     },
   });
+  console.log(createdFile);
   if (metadata.folderId) {
     await db.folders.update({
       where: {
@@ -72,7 +82,7 @@ const onUploadComplete = async ({
   }
 };
 export const ourFileRouter = {
-  freePlanUploader: f({ pdf: { maxFileCount: 10, maxFileSize: "4MB" } })
+  freePlanUploader: f({ pdf: { maxFileCount: 1, maxFileSize: "4MB" } })
     .input(z.object({ folderId: z.string().nullable() }))
     .middleware(async ({ req, input }) => {
       return middleware({ req, input });

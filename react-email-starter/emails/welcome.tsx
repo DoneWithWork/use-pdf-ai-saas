@@ -5,7 +5,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Row,
@@ -97,7 +96,7 @@ export const WelcomeEmail = ({
   return (
     <Html>
       <Head />
-      <Preview>Netlify Welcome</Preview>
+      <Preview>USE PDF AI Welcome</Preview>
       <Tailwind
         config={{
           theme: {
@@ -116,13 +115,13 @@ export const WelcomeEmail = ({
         }}
       >
         <Body className="bg-offwhite text-base font-sans">
-          <Img
+          {/* <Img
             src={`${process.env.VERCEL_ENV === "production" ? `${baseUrl}/logo.png` : "/static/logo.png"}`}
             width="250"
             height="75"
             alt="USE PDF AI"
             className="mx-auto my-20 aspect-video"
-          />
+          /> */}
           <Container className="bg-white p-45">
             <Heading className="text-center my-0 leading-8">
               Welcome to USE PDF AI

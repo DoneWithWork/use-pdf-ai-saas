@@ -19,8 +19,10 @@ export default function AuthCallBack() {
   useEffect(() => {
     if (error?.data?.httpStatus === 401) {
       console.log("unauthorized");
+
       router.push("/");
     }
+
     if (data?.success) {
       router.push(
         origin

@@ -5,8 +5,8 @@ import Stripe from "stripe";
 
 export const stripe = new Stripe(
   process.env.VERCEL_ENV == "production"
-    ? process.env.STRIPE_SECRET_LIVE_KEY ?? ""
-    : process.env.STRIPE_SECRET_KEY ?? "",
+    ? (process.env.STRIPE_SECRET_LIVE_KEY ?? "")
+    : (process.env.STRIPE_SECRET_KEY ?? ""),
   {
     apiVersion: "2024-12-18.acacia",
     typescript: true,
@@ -66,11 +66,12 @@ export async function getUserSubscriptionPlan() {
     );
     isCanceled = stripePlan.cancel_at_period_end;
   }
-
+  console.log(plan);
   return {
     ...plan,
     name: plan?.name || "Free",
-
+    size: plan?.size || 4,
+    quota: plan?.quota || 2,
     stripeSubscriptionId: dbUser.stripeSubscriptionId,
     stripeCurrentPeriodEnd: dbUser.stripeCurrentPeriodEnd,
     stripeCustomerId: dbUser.stripeCustomerId,

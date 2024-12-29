@@ -21,8 +21,8 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
     data?.name === "Free"
       ? "freePlanUploader"
       : data?.name === "Pro"
-      ? "proPlanUploader"
-      : "studentPlanUploader",
+        ? "proPlanUploader"
+        : "studentPlanUploader",
     {
       onBeforeUploadBegin: (files) => {
         const newFiles = files.map((file) => {
@@ -43,11 +43,13 @@ export const OurUploadDropzone = ({ close }: { close: () => void }) => {
         setIsUploading(true);
       },
       onUploadError: (error) => {
+        console.log(error);
         ErrorToast(`Error uploading file: ${error.message}`);
       },
       onUploadProgress: (progress) => {
         setProgress(progress);
       },
+
       onClientUploadComplete: (res) => {
         setIsUploading(false);
         close();
