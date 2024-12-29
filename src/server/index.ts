@@ -12,9 +12,13 @@ import { PineconeStore } from "@langchain/pinecone";
 import { absoluteUrl, capitalizeFirstLetter } from "@/lib/utils";
 import { getUserSubscriptionPlan, stripe } from "@/lib/stripe";
 import { PLANS } from "@/config/stripe";
+import { Resend } from "resend";
+
 import { DocumentType, DocumentTypes, PDFDocument } from "@/types/types";
 // import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
 import { Users, init } from "@kinde/management-api-js";
+import WelcomeEmail from "../../react-email-starter/emails/welcome";
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 const utapi = new UTApi();
 export const appRouter = router({
@@ -107,13 +111,24 @@ export const appRouter = router({
       });
 
       if (!dbUser) {
-        await db.user.create({
+        const newUser = await db.user.create({
           data: {
             id: user.id,
             email: user.email,
           },
         });
+        //send the email here
+        const { error } = await resend.emails.send({
+          from: "welcome@usepdfai.com",
+          to: newUser.email,
+          subject: "⚡⚡ Welcome to UsePDFAi ⚡⚡",
+          react: WelcomeEmail({}),
+        });
+        if (error) {
+          console.error("EMAIL SENDING ERROR: " + error.message);
+        }
       }
+
       return { success: true };
     } catch (error) {
       throw new TRPCError({
@@ -513,12 +528,11 @@ export const appRouter = router({
 
       const fileIds = deletedUserFromDb.File.map((file) => file.id);
       const fileKeys = deletedUserFromDb.File.map((file) => file.key);
+
       if (deletedUserFromDb.stripeSubscriptionId) {
         await stripe.subscriptions.cancel(
           deletedUserFromDb.stripeSubscriptionId
         );
-      } else {
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
       await utapi.deleteFiles(fileKeys);
       if (fileIds.length > 0) {
@@ -531,6 +545,7 @@ export const appRouter = router({
       return { success: true };
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
+      console.log(error);
       throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     }
   }),
