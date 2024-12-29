@@ -6,7 +6,7 @@ export const PLANS: PlanType[] = [
     size: 4,
     workspaces: 1,
     questions: 10,
-    pagesPerPDF: 5,
+    pagesPerPDF: 10,
     price: {
       amount: 0,
       priceIds: {
@@ -24,7 +24,7 @@ export const PLANS: PlanType[] = [
     size: 64,
     questions: 1000,
     workspaces: 1000,
-    pagesPerPDF: 100,
+    pagesPerPDF: 500,
     price: {
       amount: 10,
       priceIds: {
@@ -42,7 +42,7 @@ export const PLANS: PlanType[] = [
     questions: 100,
     workspaces: 50,
     quota: 50,
-    pagesPerPDF: 50,
+    pagesPerPDF: 200,
     price: {
       amount: 5,
       priceIds: {

@@ -10,7 +10,7 @@ export const price: PricingType[] = [
     buttonText: "Get started",
     features: [
       {
-        text: "5 Pages/PDF",
+        text: "10 Pages/PDF",
         tooltip: "How many pages you can have in a single PDF",
       },
       {
@@ -45,7 +45,7 @@ export const price: PricingType[] = [
     buttonText: "Get started",
     features: [
       {
-        text: "100 Pages/PDF",
+        text: "500 Pages/PDF",
         tooltip: "How many pages you can have in a single PDF",
       },
       {
@@ -79,7 +79,7 @@ export const price: PricingType[] = [
     buttonText: "Get started",
     features: [
       {
-        text: "50 Pages/PDF",
+        text: "200 Pages/PDF",
         tooltip: "How many pages you can have in a single PDF",
       },
       {

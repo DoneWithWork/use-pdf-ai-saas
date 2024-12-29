@@ -1,14 +1,7 @@
 import CTA from "@/components/CTA";
 import Footer from "@/components/mis/Footer";
 import LandingNav from "@/components/navbars/LandingNav";
-import {
-  Book,
-  CircleDollarSign,
-  Image,
-  Notebook,
-  Receipt,
-  UserSearch,
-} from "lucide-react";
+import { Book, Image, Notebook, Receipt, UserSearch } from "lucide-react";
 import React from "react";
 
 const usecases = [
@@ -34,11 +27,11 @@ const usecases = [
     icon: UserSearch,
   },
   {
-    name: "Contracts",
+    name: "Stories",
     color: "bg-purple-200",
     iconColor: "text-purple-600",
-    description: "Review and analyze contracts",
-    icon: CircleDollarSign,
+    description: "Summarise key events in stories",
+    icon: Book,
   },
   {
     name: "Manuals",
@@ -77,6 +70,9 @@ export default function UseCases() {
                 <usecase.icon className={`${usecase.iconColor} h-7 w-7 m-2`} />
               </div>
               <p className="font-medium text-xl">{usecase.name}</p>
+              <div className="mt-2">
+                <p>{usecase.description}</p>
+              </div>
             </div>
           ))}
         </div>

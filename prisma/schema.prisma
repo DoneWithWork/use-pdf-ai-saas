@@ -110,8 +110,8 @@ model PageFile {
   fileId     String
   pageNumber Int
   messageId  String
-  Message    Message @relation(fields: [messageId], references: [id])
-  File       File    @relation(fields: [fileId], references: [id]) // Relation to File model
+  Message    Message @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  File       File    @relation(fields: [fileId], references: [id], onDelete: Cascade) // Relation to File model
 }
 
 enum Plans {

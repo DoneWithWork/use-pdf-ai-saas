@@ -336,6 +336,7 @@ export const appRouter = router({
     )
     .mutation(async ({ ctx, input }) => {
       const { userId } = ctx;
+
       try {
         if (input.isFolder) {
           //check if folder has any linked documents just in case
@@ -362,18 +363,29 @@ export const appRouter = router({
           });
           return { success: true };
         } else if (!input.isFolder && !input.isWorkspace) {
+          console.log(input.id);
+
           const file = await db.file.delete({
             where: {
               userId,
               id: input.id,
             },
           });
+          console.log(file);
           if (!file) throw new TRPCError({ code: "NOT_FOUND" });
+          console.log("delete file");
           await utapi.deleteFiles(file.key);
           const pinecone = new PineconeClient();
-          pinecone.Index(process.env.PINECONE_INDEX!).deleteMany({
-            ids: [file.id],
-          });
+          const index = pinecone.Index(process.env.PINECONE_INDEX!);
+          const indexExists = await index
+            .describeIndexStats()
+            .catch(() => false);
+          if (indexExists) {
+            await index.deleteOne(file.id);
+          } else {
+            console.error("Pinecone index not found");
+          }
+          console.log("delete files");
           return { success: true };
         } else {
           // Delete the workspace
@@ -395,7 +407,8 @@ export const appRouter = router({
 
           return { success: true };
         }
-      } catch {
+      } catch (error) {
+        console.log(error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
 

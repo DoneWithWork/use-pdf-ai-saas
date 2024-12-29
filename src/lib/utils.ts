@@ -70,11 +70,13 @@ export function constructMetadata({
     twitter: {
       card: "summary_large_image",
       title,
+
       description,
       images: [image],
       creator: "@usepdfai",
     },
     icons,
+
     metadataBase: new URL("https://usepdfai.com"),
 
     ...(noIndex && {

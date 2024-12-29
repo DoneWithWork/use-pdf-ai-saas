@@ -5,7 +5,10 @@ import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 
-import landing from "../public/landing.png";
+import dashboard from "../public/dashboard.png";
+
+import workspace from "../public/workspace.png";
+import folder from "../public/folder.png";
 import Footer from "@/components/mis/Footer";
 
 import LandingNav from "@/components/navbars/LandingNav";
@@ -27,7 +30,7 @@ export default function Home() {
           and discover insights effortlessly.
         </p>
         <Image
-          src={landing}
+          src={dashboard}
           alt="image"
           width={1000}
           height={1300}
@@ -41,7 +44,7 @@ export default function Home() {
           precise answers, and uncover insights seamlessly
         </p>
         <Image
-          src={landing}
+          src={workspace}
           alt="image"
           width={1000}
           height={1200}
@@ -55,7 +58,7 @@ export default function Home() {
           precise answers, and uncover insights seamlessly
         </p>
         <Image
-          src={landing}
+          src={workspace}
           alt="image"
           width={1000}
           height={1200}
@@ -69,7 +72,7 @@ export default function Home() {
           enhance productivity with a seamless document library.
         </p>
         <Image
-          src={landing}
+          src={folder}
           alt="image"
           width={1000}
           height={1200}
