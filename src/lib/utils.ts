@@ -43,7 +43,7 @@ export function capitalizeFirstLetter(plan: string) {
 export function constructMetadata({
   title = "UsePdfAi - the Saas for everyone",
   description = "Get instant answers from your PDFs with AI-driven chat.",
-  image = "./",
+  image = "./image.png",
   icons = "./favicon.ico",
   noIndex = false,
 }: {
