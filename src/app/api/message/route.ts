@@ -113,36 +113,50 @@ export const POST = async (req: NextRequest) => {
     }));
     const response = await openai.chat.completions.create({
       model: "gpt-4o-mini-2024-07-18",
-      stream: true, // will stream the response real time
+      stream: true, // stream the response in real-time
       messages: [
         {
           role: "system",
-          content:
-            "Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format. If a document or title is speicified use the given context to answer accordingly. If a user asks a related question given to the context, you may use external information to supplement your response. If you don't know the answer, just say I'm not sure.",
+          content: `
+            You are an intelligent assistant with access to user-provided context and previous conversations. 
+            Answer questions concisely and accurately using the given context and previous conversation as your primary reference. 
+            Supplement with general knowledge only if explicitly required, but prioritize the provided context. 
+            Use Markdown formatting for the response. 
+            If you are unsure or the required information is not in the context, state, "I'm not sure" without making up information.
+          `,
         },
         {
           role: "user",
-          content: `Use the following pieces of context (or previous conversaton if needed) to answer the users question in markdown format. \nIf you don't know the answer, just say that you are not sure, don't try to make up an answer.
-          
-    \n----------------\n
+          content: `
+            Below is the relevant context and prior conversation history. 
+            Please use this to answer the user's question accurately and concisely. 
+            Focus only on what is relevant and avoid unnecessary elaboration. 
+            If you are unsure, explicitly state so.
     
-    PREVIOUS CONVERSATION:
-    ${formattedPrevMessages.map((message) => {
-      if (message.role === "user") return `User: ${message.content}\n`;
-      return `Assistant: ${message.content}\n`;
-    })}
+            --------------------
+            **PREVIOUS CONVERSATION**:
+            ${formattedPrevMessages
+              .map((message) => {
+                if (message.role === "user")
+                  return `User: ${message.content}\n`;
+                return `Assistant: ${message.content}\n`;
+              })
+              .join("")}
     
-    \n----------------\n
+            --------------------
+            **CONTEXT**:
+            ${topResults.map((r) => `- ${r.pageContent}`).join("\n")}
     
-    CONTEXT:
-    ${topResults.map((r) => r.pageContent).join("\n\n")}
-    
-    USER INPUT: ${message}`,
+            --------------------
+            **USER INPUT**: 
+            ${message}
+          `,
         },
       ],
-      max_tokens: subscription.maxTokens || 200,
-      temperature: 0.2,
+      max_tokens: subscription.maxTokens || 300,
+      temperature: 0.0, // Ensure deterministic and fact-focused responses
     });
+    console.log(subscription.maxTokens);
     console.log(topResults);
     const references = topResults.map((r) => {
       return {
