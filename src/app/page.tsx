@@ -12,6 +12,7 @@ import folder from "../public/folder.png";
 import Footer from "@/components/mis/Footer";
 
 import LandingNav from "@/components/navbars/LandingNav";
+import Link from "next/link";
 
 export default function Home() {
   // const getList = trpc.getList.useQuery();
@@ -21,6 +22,19 @@ export default function Home() {
       <LandingNav />
 
       <div className="custom__container h-screen flex flex-col justify-center -translate-y-20 sm:-translate-y-10 md:translate-y-0">
+        <Link
+          href="https://www.producthunt.com/posts/use-pdf-ai?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-use&#0045;pdf&#0045;ai"
+          target="_blank"
+          className="mb-3"
+        >
+          <Image
+            src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=743413&theme=light"
+            alt="Use&#0032;PDF&#0032;AI - Smart&#0032;Answers&#0032;from&#0032;Your&#0032;PDFs&#0044;&#0032;Simplified&#0032;and&#0032;Instant | Product Hunt"
+            style={{ width: "250px", height: "54px" }}
+            width="250"
+            height="54"
+          />
+        </Link>
         <h1 className="heading" id="tour1-step2">
           Smart Answers from Your PDFs, Simplified and{" "}
           <span className="text-primary font-extrabold underline">Instant</span>
