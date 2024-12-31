@@ -56,9 +56,13 @@ export function constructMetadata({
   return {
     title,
     description,
+
     openGraph: {
       title,
       description,
+      siteName: "UsePdfAi",
+      url: "https://usepdfai.com",
+
       images: [
         {
           url: image,
