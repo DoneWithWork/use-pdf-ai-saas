@@ -28,7 +28,7 @@ const inter = Inter({
 export const metadata = constructMetadata({
   title: "UsePdfAi - the Saas for everyone",
   description: "Get instant answers from your PDFs with AI-driven chat.",
-  image: "./image.png",
+  image: "./icon.png",
   icons: "./favicon.ico",
   noIndex: false,
 });
